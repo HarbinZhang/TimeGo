@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "552988190087",
+    "firebase_url": "https://timego-b8940.firebaseio.com",
+    "project_id": "timego-b8940",
+    "storage_bucket": "timego-b8940.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:552988190087:android:984c1aade17c7f9c",
+        "android_client_info": {
+          "package_name": "com.timego.harbin.timego"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "552988190087-qalb3v52joj5037f1o14j5efjq3v46lv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.timego.harbin.timego",
+            "certificate_hash": "9f46c922a519ddb5bf16d99021961b8c4fbf1c00"
+          }
+        },
+        {
+          "client_id": "552988190087-5btkqt4cssnmjmghgt6eamph0eth6322.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfoIoFcb5Q-LP0tb_dk_XWho-7rhzwN4E"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "552988190087-5btkqt4cssnmjmghgt6eamph0eth6322.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
