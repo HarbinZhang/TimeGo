@@ -13,15 +13,17 @@ public class Record {
     public int duration;
     public int efficient;
     public String date;
+    public String startTime;
 
     public Record(){
 
     }
 
-    public Record(String type, int duration, String date, int efficient){
+    public Record(String type, int duration, String date, String startTime, int efficient){
         this.type = type;
         this.duration = duration;
         this.efficient = efficient;
         this.date = date;
+        this.startTime = startTime;
     }
 }

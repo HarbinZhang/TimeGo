@@ -1,42 +1,63 @@
 package com.timego.harbin.timego;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.timego.harbin.timego.database.Record;
+import com.timego.harbin.timego.database.RecordContract;
+import com.timego.harbin.timego.database.RecordDbHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.Date;
+import java.util.Stack;
+import java.util.concurrent.TimeUnit;
+
+import static com.timego.harbin.timego.MainActivity.editor;
+import static com.timego.harbin.timego.MainActivity.prefs;
 
 
 public class AddRecordFragment extends Fragment {
 
-    private TextView info_tv,duration_tv;
-    private Button hour_btn, min_btn, ok_btn, reset_btn;
+    private TextView info_tv,duration_tv, tv_last_time, tv_duration_remain;
+    private Button hour_btn, min_btn, ok_btn, onemin_btn;
+    private Button btn_reset, btn_undo;
     private RadioGroup radGroup, eff_radGroup;
     private int duration;
     private String curt_activity = "study";
     private int efficient = 4;
-    private Queue<Record> recordqueue = new LinkedList<>();
 
-    private FirebaseUser mFirebaseUser;
-    private DatabaseReference mDatabase;
-    private String mUserId;
-    private FirebaseAuth mFirebaseAuth;
+
+    private RecyclerView mRecyclerView;
+    private RecordAdapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
+    private SQLiteDatabase mDb;
+
+
+
+    private Calendar last_time_cal = Calendar.getInstance();
+    private long duration_remain;
+
+
+    private Stack<Integer> duration_stack;
+
 
     public AddRecordFragment() {
     }
@@ -44,10 +65,7 @@ public class AddRecordFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        mFirebaseUser = mFirebaseAuth.getCurrentUser();
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mUserId = mFirebaseUser.getUid();
+
     }
 
     @Override
@@ -55,7 +73,28 @@ public class AddRecordFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_add_record, container, false);
 
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_record_container);
+        mRecyclerView.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(getContext());
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        RecordDbHelper dbHelper = new RecordDbHelper(getContext());
+        mDb = dbHelper.getWritableDatabase();
+
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        String[] dates = df.format(calendar.getTime()).split("-");
+
+        Cursor cursor = getRecords(dates[0], dates[1], dates[2]);
+
+        mAdapter = new RecordAdapter(getContext(), cursor);
+        mRecyclerView.setAdapter(mAdapter);
+
+        duration_stack = new Stack<Integer>();
+
         initForXml(view);
+
+        initLastTime();
 
         return view;
     }
@@ -68,41 +107,40 @@ public class AddRecordFragment extends Fragment {
         hour_btn = (Button) view.findViewById(R.id.main_hour_btn);
         min_btn = (Button) view.findViewById(R.id.main_min_btn);
         ok_btn = (Button) view.findViewById(R.id.main_ok_btn);
-        reset_btn = (Button) view.findViewById(R.id.main_reset_btn);
+        onemin_btn = (Button) view.findViewById(R.id.main_onemin_btn);
         duration_tv = (TextView) view.findViewById(R.id.main_duration_tv);
-        info_tv = (TextView) view.findViewById(R.id.main_info_tv);
+        tv_last_time = (TextView) view.findViewById(R.id.tv_setting_last_time);
+        tv_duration_remain = (TextView) view.findViewById(R.id.tv_setting_duration);
+        btn_reset = (Button) view.findViewById(R.id.btn_record_reset);
+        btn_undo = (Button) view.findViewById(R.id.btn_record_undo);
+
         duration = 0;
-        duration_tv.setText(String.valueOf(duration)+" min");
+        duration_tv.setText(minToHour(duration));
         radGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
                 switch (checkedId){
                     case R.id.study_btn:
-                        saveTempData();
+                        if(!checkRemainDuration()){return;}
+                        addNewActivity();
                         curt_activity = "study";
-                        duration = 0;
-                        duration_tv.setText(String.valueOf(duration)+" min");
                         break;
                     case R.id.entertain_btn:
-                        saveTempData();
+                        if(!checkRemainDuration()){return;}
+                        addNewActivity();
                         curt_activity = "entertain";
-                        duration = 0;
-                        duration_tv.setText(String.valueOf(duration)+" min");
                         break;
                     case R.id.sleep_btn:
-                        saveTempData();
+                        if(!checkRemainDuration()){return;}
+                        addNewActivity();
                         curt_activity = "sleep";
-                        duration = 0;
-                        duration_tv.setText(String.valueOf(duration)+" min");
                         break;
                     case R.id.exercise_btn:
-                        saveTempData();
+                        if(!checkRemainDuration()){return;}
+                        addNewActivity();
                         curt_activity = "exercise";
-                        duration = 0;
-                        duration_tv.setText(String.valueOf(duration)+" min");
                         break;
                 }
-
             }
         });
 
@@ -132,47 +170,116 @@ public class AddRecordFragment extends Fragment {
         hour_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                duration_stack.push(60);
                 duration = duration + 60;
-                duration_tv.setText(String.valueOf(duration)+" min");
+                duration_tv.setText(minToHour(duration));
             }
         });
 
         min_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                duration_stack.push(10);
                 duration = duration + 10;
-                duration_tv.setText(String.valueOf(duration)+" min");
+                duration_tv.setText(minToHour(duration));
+            }
+        });
+
+        onemin_btn.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                duration_stack.push(1);
+                duration += 1;
+                duration_tv.setText(minToHour(duration));
+            }
+        });
+
+        btn_undo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(duration_stack.isEmpty()){
+                    Toast.makeText(getContext(), "no operation to undo", Toast.LENGTH_SHORT).show();
+                }else{
+                    duration -= duration_stack.pop();
+                    duration_tv.setText(minToHour(duration));
+                }
+            }
+        });
+
+
+        btn_reset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                duration = 0;
+                duration_stack.clear();
+                duration_tv.setText(minToHour(duration));
             }
         });
 
         ok_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(duration != 0){
-                    Calendar calendar = Calendar.getInstance();
-                    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-                    String date = df.format(calendar.getTime());
 
-                    Record record = new Record(curt_activity, duration, date, efficient);
-                    recordqueue.add(record);
-                }
-                while(!recordqueue.isEmpty()){
-                    Record record = recordqueue.poll();
-                    mDatabase.child("users").child(mUserId).child("records").push().setValue(record);
-                }
-                duration = 0;
-                duration_tv.setText(String.valueOf(duration) + " min");
+                if(!checkRemainDuration()){return;}
+
+                addNewActivity();
+
             }
         });
 
-        reset_btn.setOnClickListener(new View.OnClickListener() {
+
+
+
+//        Query lastTimeRef = mDatabase.child("users").child(mUserId).child("newestTime");
+//        lastTimeRef.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+////                String time = dataSnapshot.getValue(String.class);
+////                tv_last_time.setText(time);
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
+
+
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT){
+
             @Override
-            public void onClick(View v) {
-                recordqueue.clear();
-                duration = 0;
-                duration_tv.setText(String.valueOf(duration) + " min");
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
             }
-        });
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                long id = (long) viewHolder.itemView.getTag();
+                String selection = RecordContract.RecordEntry._ID + " = " + id;
+                Cursor cursor = mDb.query(RecordContract.RecordEntry.TABLE_NAME,
+                        null,
+                        selection,
+                        null,
+                        null,
+                        null,
+                        null);
+                cursor.moveToFirst();
+                int theDuration = cursor.getInt(cursor.getColumnIndex(RecordContract.RecordEntry.COLUMN_DURATION));
+                last_time_cal.add(Calendar.MINUTE, -theDuration);
+
+                SimpleDateFormat dft = new SimpleDateFormat("HH:mm");
+                String time = dft.format(last_time_cal.getTime());
+                tv_last_time.setText(time.toString());
+
+                removeRecord(id);
+                mAdapter.swapCursor(getTodayRecords());
+            }
+
+
+        }).attachToRecyclerView(mRecyclerView);
+
+
     }
 
 
@@ -183,9 +290,192 @@ public class AddRecordFragment extends Fragment {
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         String date = df.format(calendar.getTime());
+        String[] dates = date.split("-");
 
-        Record record = new Record(curt_activity, duration, date, efficient);
-        recordqueue.add(record);
-        info_tv.setText(mFirebaseUser.getUid());
+        SimpleDateFormat dft = new SimpleDateFormat("HH:mm");
+        String time = dft.format(calendar.getTime());
+        Record record = new Record(curt_activity, duration, date, time, efficient);
+
+
+        ContentValues cv = new ContentValues();
+        cv.put(RecordContract.RecordEntry.COLUMN_TYPE, curt_activity);
+        cv.put(RecordContract.RecordEntry.COLUMN_DURATION, duration);
+        cv.put(RecordContract.RecordEntry.COLUMN_EFFICIENT, efficient);
+        cv.put(RecordContract.RecordEntry.COLUMN_YEAR, Integer.valueOf(dates[0]));
+        cv.put(RecordContract.RecordEntry.COLUMN_MONTH, Integer.valueOf(dates[1]));
+        cv.put(RecordContract.RecordEntry.COLUMN_DAY, Integer.valueOf(dates[2]));
+        cv.put(RecordContract.RecordEntry.COLUMN_STARTTIME, time);
+
+        mDb.insert(RecordContract.RecordEntry.TABLE_NAME, null, cv);
+
+        mAdapter.swapCursor(getRecords(dates[0], dates[1], dates[2]));
+
+        duration_remain -= duration;
+        tv_duration_remain.setText(minToHour(duration_remain));
+
     }
+
+
+    private Cursor getRecords(String year, String month, String day){
+        String whereCluse = RecordContract.RecordEntry.COLUMN_YEAR + " = '" + year + "' AND " +
+                RecordContract.RecordEntry.COLUMN_MONTH + " = '" + month + "' AND " +
+                RecordContract.RecordEntry.COLUMN_DAY + " = '" + day + "' ";
+        return mDb.query(
+                RecordContract.RecordEntry.TABLE_NAME,
+                null,
+                whereCluse,
+                null,
+                null,
+                null,
+                null
+        );
+    }
+
+
+    private Cursor getTodayRecords(){
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        String date = df.format(calendar.getTime());
+        String[] dates = date.split("-");
+
+        return getRecords(dates[0], dates[1], dates[2]);
+    }
+
+
+    private boolean removeRecord(long id){
+        return mDb.delete(RecordContract.RecordEntry.TABLE_NAME,
+                RecordContract.RecordEntry._ID + "=" + id, null) > 0;
+    }
+
+
+    private void initLastTime(){
+        String last_time = prefs.getString("last_time", null);
+        Calendar now = Calendar.getInstance();
+        String pattern = "yyyy-MM-dd HH:mm";
+
+        Cursor cursor = getTodayRecords();
+        if (cursor.getCount() == 0){
+
+            Calendar cal = Calendar.getInstance();
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            String time = df.format(cal.getTime());
+            time += " 00:00";
+            editor.putString("last_time", time);
+            editor.apply();
+
+            try {
+                Date date = new SimpleDateFormat(pattern).parse(time);
+
+                long millis = now.getTime().getTime() - date.getTime();
+                duration_remain = TimeUnit.MILLISECONDS.toMinutes(millis);
+                tv_duration_remain.setText(minToHour(duration_remain));
+                last_time_cal.setTime(date);
+            }catch (Exception e){
+                Log.e("Error in date:", e.getMessage());
+            }
+            tv_last_time.setText(time.substring(11));
+        }else{
+            if(last_time!=null) {
+                try {
+                    Date date = new SimpleDateFormat(pattern).parse(last_time);
+
+                    if (DateUtils.isToday(date.getTime())) {
+                        last_time_cal.setTime(date);
+
+                        long millis = now.getTime().getTime() - date.getTime();
+                        duration_remain = TimeUnit.MILLISECONDS.toMinutes(millis);
+                        tv_duration_remain.setText(minToHour(duration_remain));
+                        tv_last_time.setText(last_time.substring(11));
+                    } else {
+                        Calendar cal = Calendar.getInstance();
+                        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                        String time = df.format(cal.getTime());
+                        time += " 00:00";
+                        editor.putString("last_time", time);
+                        editor.apply();
+
+                        date = new SimpleDateFormat(pattern).parse(time);
+                        last_time_cal.setTime(date);
+
+                        long millis = now.getTime().getTime() - date.getTime();
+                        duration_remain = TimeUnit.MILLISECONDS.toMinutes(millis);
+                        tv_duration_remain.setText(minToHour(duration_remain));
+                        tv_last_time.setText(time.substring(11));
+                    }
+                } catch (Exception e) {
+                    Log.e("Error in date:", e.getMessage());
+                }
+            }else{
+                Calendar cal = Calendar.getInstance();
+                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                String time = df.format(cal.getTime());
+                time += " 00:00";
+                editor.putString("last_time", time);
+                editor.apply();
+
+                try {
+                    Date date = new SimpleDateFormat(pattern).parse(time);
+
+                    long millis = now.getTime().getTime() - date.getTime();
+                    duration_remain = TimeUnit.MILLISECONDS.toMinutes(millis);
+                    tv_duration_remain.setText(minToHour(duration_remain));
+                    last_time_cal.setTime(date);
+                }catch (Exception e){
+                    Log.e("Error in date:", e.getMessage());
+                }
+                tv_last_time.setText(time.substring(11));
+            }
+        }
+
+
+
+
+    }
+
+    private boolean checkRemainDuration(){
+        if (duration > duration_remain){
+            Toast.makeText(getContext(), "Current duration is larger than remain available duration.", Toast.LENGTH_SHORT).show();
+            return false;
+        }else{
+            return true;
+        }
+    }
+
+    private void addNewActivity(){
+        saveTempData();
+        last_time_cal.add(Calendar.MINUTE, duration);
+        SimpleDateFormat dft = new SimpleDateFormat("HH:mm");
+        String time = dft.format(last_time_cal.getTime());
+        tv_last_time.setText(time.toString());
+        SimpleDateFormat pattern = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        String last_time = pattern.format(last_time_cal.getTime());
+        editor.putString("last_time", last_time);
+        editor.apply();
+
+        duration = 0;
+        duration_tv.setText(minToHour(duration));
+
+        duration_stack.clear();
+    }
+
+    private String minToHour(int t){
+        String hour = String.valueOf(t / 60);
+        String min = String.valueOf(t % 60);
+        if(t<60){
+            return min+" min";
+        }else{
+            return hour+" h  "+min+" min";
+        }
+    }
+
+    private String minToHour(long t){
+        String hour = String.valueOf(t / 60);
+        String min = String.valueOf(t % 60);
+        if(t<60){
+            return min+" min";
+        }else{
+            return hour+" h  "+min+" min";
+        }
+    }
+
 }

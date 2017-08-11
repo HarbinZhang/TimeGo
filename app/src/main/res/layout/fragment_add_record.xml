@@ -6,117 +6,252 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical">
-        <TextView
+
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="wrap_content"
+                android:text="Last Record Time: "
+                />
+
+            <TextView
+                android:id="@+id/tv_setting_last_time"
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:text="Total Duration Remain: "
+                android:layout_height="wrap_content" />
+
+
+            <TextView
+                android:id="@+id/tv_setting_duration"
+                android:layout_below="@id/tv_setting_last_time"
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="wrap_content"
+                />
+
+
+        </LinearLayout>
+
+
+        <android.support.v7.widget.RecyclerView
+            android:layout_below="@id/tv_setting_duration"
+            android:id="@+id/rv_record_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:id="@+id/main_info_tv"
-            />
+            android:paddingBottom="3dp">
 
-        <RadioGroup
-            android:id="@+id/main_radioGroup"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <RadioButton
-                android:id="@+id/study_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Study"
-                android:checked="true" />
-            <RadioButton
-                android:id="@+id/entertain_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Entertain"/>
-            <RadioButton
-                android:id="@+id/sleep_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Sleep"/>
-            <RadioButton
-                android:id="@+id/exercise_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Exercise"/>
 
-        </RadioGroup>
+        </android.support.v7.widget.RecyclerView>
 
-        <RadioGroup
-            android:id="@+id/main_eff_group"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <RadioButton
-                android:id="@+id/eff_5_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="5" />
-            <RadioButton
-                android:id="@+id/eff_4_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="4"
-                android:checked="true" />
-            <RadioButton
-                android:id="@+id/eff_3_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="3"/>
-            <RadioButton
-                android:id="@+id/eff_2_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="2"/>
-            <RadioButton
-                android:id="@+id/eff_1_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="1"/>
-        </RadioGroup>
 
-        <TextView
-            android:id="@+id/main_duration_tv"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <Button
-                android:id="@+id/main_hour_btn"
-                android:layout_width="wrap_content"
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="2"
                 android:layout_height="wrap_content"
-                android:text="+1 Hour"/>
-            <Button
-                android:id="@+id/main_min_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="+10 min"/>
+                android:text="Current Activity Duration: "
+                />
+
+            <TextView
+                android:id="@+id/main_duration_tv"
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="wrap_content"/>
+
+
         </LinearLayout>
 
+
+        <LinearLayout
+            android:id="@+id/ll_record_type"
+            android:layout_below="@id/main_duration_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+            <RadioGroup
+
+                android:id="@+id/main_radioGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/study_btn"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:background="@color/study"
+                    android:checked="true"
+                    android:text="Study" />
+
+                <RadioButton
+                    android:id="@+id/entertain_btn"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@color/entertain"
+                    android:text="Entertain" />
+
+                <RadioButton
+                    android:id="@+id/sleep_btn"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@color/sleep"
+                    android:text="Sleep" />
+
+                <RadioButton
+                    android:id="@+id/exercise_btn"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@color/exercise"
+                    android:text="Exercise" />
+
+            </RadioGroup>
+
+        </LinearLayout>
+
+
+
+        <LinearLayout
+            android:id="@+id/ll_record_efficient"
+            android:layout_below="@id/ll_record_type"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioGroup
+                android:id="@+id/main_eff_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/eff_5_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Perfect" />
+
+                <RadioButton
+                    android:id="@+id/eff_4_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="Amazing" />
+
+                <RadioButton
+                    android:id="@+id/eff_3_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Happy" />
+
+                <RadioButton
+                    android:id="@+id/eff_2_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="So-so" />
+
+                <RadioButton
+                    android:id="@+id/eff_1_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Bad" />
+            </RadioGroup>
+
+        </LinearLayout>
+
+
+
+
+        <LinearLayout
+            android:id="@+id/ll_record_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/main_hour_btn"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="+1 Hour" />
+
+            <Button
+                android:id="@+id/main_min_btn"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="+10 min" />
+
+            <Button
+                android:id="@+id/main_onemin_btn"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="+1 min" />
+
+
+            <Button
+                android:id="@+id/btn_record_undo"
+                android:text="Undo"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
+
             <Button
-                android:id="@+id/main_reset_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Reset"/>
+                android:id="@+id/btn_record_reset"
+                android:text="Reset"
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="wrap_content" />
+
             <Button
                 android:id="@+id/main_ok_btn"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="2"
                 android:layout_height="wrap_content"
-                android:text="OK"/>
+                android:text="OK" />
+
         </LinearLayout>
 
 
     </LinearLayout>
-
-
 
 
 </FrameLayout>

@@ -1,9 +1,12 @@
 package com.timego.harbin.timego;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
@@ -23,13 +26,9 @@ import com.github.mikephil.charting.utils.ColorTemplate;
 import com.github.mikephil.charting.utils.MPPointF;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
-import com.timego.harbin.timego.database.Record;
+import com.timego.harbin.timego.database.RecordContract;
+import com.timego.harbin.timego.database.RecordDbHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -58,6 +57,9 @@ public class DisplayFragment extends Fragment {
             "study", "entertain", "sleep", "exercise"
     };
 
+
+    private SQLiteDatabase mDb;
+
     public DisplayFragment() {
         // Required empty public constructor
     }
@@ -75,36 +77,54 @@ public class DisplayFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_display, container, false);
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        mFirebaseUser = mFirebaseAuth.getCurrentUser();
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mUserId = mFirebaseUser.getUid();
+//        mFirebaseAuth = FirebaseAuth.getInstance();
+//        mFirebaseUser = mFirebaseAuth.getCurrentUser();
+//        mDatabase = FirebaseDatabase.getInstance().getReference();
+//        mUserId = mFirebaseUser.getUid();
 
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         String date = df.format(calendar.getTime());
 
-        final Query todayList = mDatabase.child("users").child(mUserId).child("records").orderByChild("date").equalTo(date);
-        todayList.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                mapInit();
-                for(DataSnapshot ds:dataSnapshot.getChildren()){
-                    Record record = ds.getValue(Record.class);
-                    int curtDuration = todayTimeSum.get(record.type) + record.duration;
-                    todayTimeSum.put(record.type, curtDuration);
-                }
-//                arrayAdapter.add(todayTimeSum.get("study").toString());
-                if(isAdded()){
-                    setData();
-                }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+        RecordDbHelper dbHelper = new RecordDbHelper(getContext());
+        mDb = dbHelper.getReadableDatabase();
 
+        mapInit();
+
+        Cursor cursor = getTodayRecords();
+        if (cursor != null){
+            if(cursor.moveToFirst()){
+                do{
+                    int curtDuration = cursor.getInt(cursor.getColumnIndex(RecordContract.RecordEntry.COLUMN_DURATION));
+                    String type = cursor.getString(cursor.getColumnIndex(RecordContract.RecordEntry.COLUMN_TYPE));
+                    todayTimeSum.put(type, curtDuration + todayTimeSum.get(type));
+                }while(cursor.moveToNext());
             }
-        });
+        }
+
+
+//        final Query todayList = mDatabase.child("users").child(mUserId).child("records").orderByChild("date").equalTo(date);
+//        todayList.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                mapInit();
+//                for(DataSnapshot ds:dataSnapshot.getChildren()){
+//                    Record record = ds.getValue(Record.class);
+//                    int curtDuration = todayTimeSum.get(record.type) + record.duration;
+//                    todayTimeSum.put(record.type, curtDuration);
+//                }
+////                arrayAdapter.add(todayTimeSum.get("study").toString());
+//                if(isAdded()){
+//                    setData();
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
 
 
         // pie chart
@@ -159,7 +179,7 @@ public class DisplayFragment extends Fragment {
         l.setYOffset(0f);
 
         // entry label styling
-        mChart.setEntryLabelColor(Color.WHITE);
+        mChart.setEntryLabelColor(ContextCompat.getColor(getContext(), R.color.pieData));
         mChart.setEntryLabelTextSize(12f);
 
 
@@ -226,7 +246,7 @@ public class DisplayFragment extends Fragment {
         PieData data = new PieData(dataSet);
         data.setValueFormatter(new PercentFormatter());
         data.setValueTextSize(11f);
-        data.setValueTextColor(Color.WHITE);
+        data.setValueTextColor(ContextCompat.getColor(getContext(), R.color.pieData));
         data.setValueTypeface(mTfRegular);
         mChart.setData(data);
 
@@ -253,6 +273,39 @@ public class DisplayFragment extends Fragment {
         s.setSpan(new RelativeSizeSpan(2f), 0, 8, 0);
         s.setSpan(new ForegroundColorSpan(Color.GRAY), 8, s.length(), 0);
         return s;
+    }
+
+
+
+    private Cursor getRecords(String year, String month, String day){
+        String whereCluse = RecordContract.RecordEntry.COLUMN_YEAR + " = '" + year + "' AND " +
+                RecordContract.RecordEntry.COLUMN_MONTH + " = '" + month + "' AND " +
+                RecordContract.RecordEntry.COLUMN_DAY + " = '" + day + "' ";
+        return mDb.query(
+                RecordContract.RecordEntry.TABLE_NAME,
+                null,
+                whereCluse,
+                null,
+                null,
+                null,
+                null
+        );
+    }
+
+
+    private Cursor getTodayRecords(){
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        String date = df.format(calendar.getTime());
+        String[] dates = date.split("-");
+
+        return getRecords(dates[0], dates[1], dates[2]);
+    }
+
+
+    private boolean removeRecord(long id){
+        return mDb.delete(RecordContract.RecordEntry.TABLE_NAME,
+                RecordContract.RecordEntry._ID + "=" + id, null) > 0;
     }
 
 
