@@ -2,9 +2,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/menu_account"
+        android:id="@+id/menu_logout"
         android:icon="@drawable/account_32dp"
-        android:title="@string/menu_account"
-        app:showAsAction="ifRoom"
-        />
+        android:title="Logout"
+        app:showAsAction="collapseActionView" />
+    <item
+        android:id="@+id/menu_signin"
+        android:icon="@drawable/account_32dp"
+        android:title="Sign In"
+        app:showAsAction="collapseActionView"/>
+    <item
+        android:id="@+id/menu_signup"
+        android:icon="@drawable/signup_32dp"
+        android:title="Sign Up"
+        app:showAsAction="collapseActionView"/>
+    <item
+        android:id="@+id/menu_feedback"
+        android:title="@string/menu_feedback"
+        app:showAsAction="collapseActionView"/>
 </menu>

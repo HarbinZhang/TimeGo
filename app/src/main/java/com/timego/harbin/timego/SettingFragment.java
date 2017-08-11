@@ -1,6 +1,5 @@
 package com.timego.harbin.timego;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -41,8 +40,7 @@ public class SettingFragment extends Fragment {
         btn_sync.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                FirebaseAuth.getInstance().signOut();
-//                loadLogInView();
+
             }
         });
 
@@ -50,11 +48,5 @@ public class SettingFragment extends Fragment {
     }
 
 
-    private void loadLogInView() {
-        Intent intent = new Intent(getActivity(), LogInActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-    }
 
 }

@@ -1,14 +1,18 @@
 package com.timego.harbin.timego;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -31,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     protected static SharedPreferences prefs;
     protected static SharedPreferences.Editor editor;
 
+    private Context mContext;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -81,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.add(R.id.main_container, fragment).commit();
 
-
+        mContext = this;
 
 //        if (mFirebaseUser == null) {
 //            // Not logged in, launch the Log In activity
@@ -97,7 +102,52 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
 
+        if(mFirebaseUser == null){
+            menu.findItem(R.id.menu_logout).setVisible(false);
+        }else{
+            menu.findItem(R.id.menu_signin).setVisible(false);
+            menu.findItem(R.id.menu_signup).setVisible(false);
+        }
+
+        return true;
+    }
+
+    @Override
+    protected void onStart() {
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            invalidateOptionsMenu();
+        }
+
+        super.onStart();
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()){
+            case R.id.menu_feedback:
+                Toast.makeText(mContext, "Still in progress", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.menu_signin:
+                startActivity(new Intent(mContext, LogInActivity.class));
+                break;
+            case R.id.menu_signup:
+                startActivity(new Intent(mContext, SignUpActivity.class));
+                break;
+            case R.id.menu_logout:
+                FirebaseAuth.getInstance().signOut();
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
     private void loadLogInView() {
         Intent intent = new Intent(this, LogInActivity.class);
