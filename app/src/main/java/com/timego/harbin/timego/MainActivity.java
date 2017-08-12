@@ -16,26 +16,28 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity {
-
 
     protected static FirebaseAuth mFirebaseAuth;
     protected static FirebaseUser mFirebaseUser;
     protected static DatabaseReference mDatabase;
     protected static String mUserId;
 
-
-
     private Fragment fragment;
-
 
     protected static SharedPreferences prefs;
     protected static SharedPreferences.Editor editor;
 
     private Context mContext;
+
+    protected static int curtIndex;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -79,7 +81,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize Firebase Auth
         mFirebaseAuth = FirebaseAuth.getInstance();
-        mFirebaseUser = mFirebaseAuth.getCurrentUser();
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
         fragment = new AddRecordFragment();
@@ -99,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
 //            transaction.add(R.id.main_container, fragment).commit();
 //
 //        }
+
     }
 
 
@@ -124,6 +126,15 @@ public class MainActivity extends AppCompatActivity {
             invalidateOptionsMenu();
         }
 
+        if(mFirebaseAuth != null){
+            mFirebaseUser = mFirebaseAuth.getCurrentUser();
+            if (mFirebaseUser != null) {
+                mUserId = mFirebaseUser.getUid();
+                firebase_curtIndex();
+            }
+        }
+
+
         super.onStart();
 
     }
@@ -143,18 +154,36 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.menu_logout:
                 FirebaseAuth.getInstance().signOut();
+                mFirebaseUser = null;
+                mFirebaseAuth = null;
+
+                Toast.makeText(mContext, "Logout successful.", Toast.LENGTH_SHORT).show();
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                    invalidateOptionsMenu();
+                }
                 break;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    private void loadLogInView() {
-        Intent intent = new Intent(this, LogInActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
+    private void firebase_curtIndex(){
+        Query curtIndexQuery = mDatabase.child("users").child(mFirebaseUser.getUid()).child("curtIndex");
+        curtIndexQuery.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                curtIndex = dataSnapshot.getValue(Integer.class);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
+
+
 
 
 }

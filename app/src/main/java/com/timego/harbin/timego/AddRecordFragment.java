@@ -20,7 +20,6 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.timego.harbin.timego.database.Record;
 import com.timego.harbin.timego.database.RecordContract;
 import com.timego.harbin.timego.database.RecordDbHelper;
 
@@ -292,9 +291,11 @@ public class AddRecordFragment extends Fragment {
         String date = df.format(calendar.getTime());
         String[] dates = date.split("-");
 
-        SimpleDateFormat dft = new SimpleDateFormat("HH:mm");
-        String time = dft.format(calendar.getTime());
-        Record record = new Record(curt_activity, duration, date, time, efficient);
+//        SimpleDateFormat dft = new SimpleDateFormat("HH:mm");
+//        String time = dft.format(calendar.getTime());
+//        Record record = new Record(curt_activity, duration, date, time, efficient);
+        String time = prefs.getString("last_time", null);
+
 
 
         ContentValues cv = new ContentValues();
@@ -304,8 +305,13 @@ public class AddRecordFragment extends Fragment {
         cv.put(RecordContract.RecordEntry.COLUMN_YEAR, Integer.valueOf(dates[0]));
         cv.put(RecordContract.RecordEntry.COLUMN_MONTH, Integer.valueOf(dates[1]));
         cv.put(RecordContract.RecordEntry.COLUMN_DAY, Integer.valueOf(dates[2]));
-        cv.put(RecordContract.RecordEntry.COLUMN_STARTTIME, time);
 
+        if(time == null) {
+            cv.put(RecordContract.RecordEntry.COLUMN_STARTTIME, "00:00");
+        }else{
+            String startTime = time.split(" ")[1];
+            cv.put(RecordContract.RecordEntry.COLUMN_STARTTIME, startTime);
+        }
         mDb.insert(RecordContract.RecordEntry.TABLE_NAME, null, cv);
 
         mAdapter.swapCursor(getRecords(dates[0], dates[1], dates[2]));
@@ -348,6 +354,7 @@ public class AddRecordFragment extends Fragment {
     }
 
 
+    // if last record is before today, set the last_time to today 00:00.
     private void initLastTime(){
         String last_time = prefs.getString("last_time", null);
         Calendar now = Calendar.getInstance();
@@ -359,9 +366,33 @@ public class AddRecordFragment extends Fragment {
             Calendar cal = Calendar.getInstance();
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
             String time = df.format(cal.getTime());
+
+            // put 00:00 to last_time
             time += " 00:00";
+
             editor.putString("last_time", time);
             editor.apply();
+
+
+
+            // handle sleep time auto fill
+            int wakeupHour = prefs.getInt("wakeupHour", 0);
+            int wakeupMinute = prefs.getInt("wakeupMinute", 0);
+            if(wakeupHour != 0 || wakeupMinute != 0) {
+                String wakeupTime = time2String(prefs.getInt("wakeupHour", 0), prefs.getInt("wakeupMinute", 0));
+
+                curt_activity = "sleep";
+                efficient = 5;
+                duration = prefs.getInt("wakeupHour", 0) * 60 + prefs.getInt("wakeupMinute", 0);
+                addNewActivity();
+                time = time.substring(0,11) + wakeupTime;
+
+                editor.putString("last_time", time);
+                editor.apply();
+            }
+
+
+
 
             try {
                 Date date = new SimpleDateFormat(pattern).parse(time);
@@ -374,6 +405,7 @@ public class AddRecordFragment extends Fragment {
                 Log.e("Error in date:", e.getMessage());
             }
             tv_last_time.setText(time.substring(11));
+            mAdapter.swapCursor(getTodayRecords());
         }else{
             if(last_time!=null) {
                 try {
@@ -427,9 +459,6 @@ public class AddRecordFragment extends Fragment {
             }
         }
 
-
-
-
     }
 
     private boolean checkRemainDuration(){
@@ -476,6 +505,22 @@ public class AddRecordFragment extends Fragment {
         }else{
             return hour+" h  "+min+" min";
         }
+    }
+
+    private String time2String(int hour, int min){
+        String hour_s, min_s;
+        if (hour<10){
+            hour_s = "0" + String.valueOf(hour);
+        }else{
+            hour_s = String.valueOf(hour);
+        }
+
+        if (min<10){
+            min_s = "0" + String.valueOf(min);
+        }else{
+            min_s = String.valueOf(min);
+        }
+        return hour_s + ":" + min_s;
     }
 
 }

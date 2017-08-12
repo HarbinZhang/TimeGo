@@ -1,15 +1,34 @@
 package com.timego.harbin.timego;
 
+import android.app.Dialog;
+import android.app.TimePickerDialog;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TimePicker;
+import android.widget.Toast;
+
+import com.timego.harbin.timego.database.Record;
+import com.timego.harbin.timego.database.RecordContract;
+import com.timego.harbin.timego.database.RecordDbHelper;
+
+import static com.timego.harbin.timego.MainActivity.editor;
+import static com.timego.harbin.timego.MainActivity.prefs;
 
 
 public class SettingFragment extends Fragment {
 
+
+    private SQLiteDatabase mDb;
+
+    private Button btn_timePicker;
 
     public SettingFragment() {
         // Required empty public constructor
@@ -36,17 +55,120 @@ public class SettingFragment extends Fragment {
         Button btn_sync = (Button) view.findViewById(R.id.btn_setting_sync);
 
 
+        RecordDbHelper dbHelper = new RecordDbHelper(getContext());
+        mDb = dbHelper.getWritableDatabase();
 
         btn_sync.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(((MainActivity)getActivity()).mFirebaseAuth != null){
+                    syncRecord();
+                }else{
+                    Toast.makeText(getContext(), "You need to login first", Toast.LENGTH_SHORT).show();
+                }
 
             }
         });
 
+
+        btn_timePicker = (Button) view.findViewById(R.id.btn_setting_wakeup);
+        btn_timePicker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogFragment newFragment = new TimePickerFragment();
+                newFragment.show(getFragmentManager(), "timePicker");
+            }
+        });
+
+
+//        timePicker = (TimePicker) view.findViewById(R.id.tp_setting_wakeup);
+//        timePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
+//            @Override
+//            public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
+//                ((MainActivity)getActivity()).editor.putInt("wakeupHour", hourOfDay);
+//                ((MainActivity)getActivity()).editor.putInt("wakeupMinute", minute);
+//                ((MainActivity)getActivity()).editor.apply();
+//            }
+//        });
+
+
         return view;
     }
 
+
+
+    private void syncRecord(){
+
+        String selection = RecordContract.RecordEntry._ID + " >= " + String.valueOf(((MainActivity)getActivity()).curtIndex);
+        Cursor cursor = mDb.query(RecordContract.RecordEntry.TABLE_NAME,
+                null,
+                selection,
+                null,
+                null,
+                null,
+                RecordContract.RecordEntry._ID
+                );
+
+        Long id = 0L;
+
+        if (cursor.moveToFirst()){
+            do{
+                String type = cursor.getString(cursor.getColumnIndex(RecordContract.RecordEntry.COLUMN_TYPE));
+                int duration = cursor.getInt(cursor.getColumnIndex(RecordContract.RecordEntry.COLUMN_DURATION));
+                int year = cursor.getInt(cursor.getColumnIndex(RecordContract.RecordEntry.COLUMN_YEAR));
+                int month = cursor.getInt(cursor.getColumnIndex(RecordContract.RecordEntry.COLUMN_MONTH));
+                int day = cursor.getInt(cursor.getColumnIndex(RecordContract.RecordEntry.COLUMN_DAY));
+                String startTime = cursor.getString(cursor.getColumnIndex(RecordContract.RecordEntry.COLUMN_STARTTIME));
+                int efficient = cursor.getInt(cursor.getColumnIndex(RecordContract.RecordEntry.COLUMN_EFFICIENT));
+                Record record = new Record(type, duration, year, month, day, startTime, efficient);
+
+                id = cursor.getLong(cursor.getColumnIndex(RecordContract.RecordEntry._ID));
+
+                String uid = ((MainActivity)getActivity()).mUserId;
+                ((MainActivity)getActivity()).mDatabase.child("users").child(uid).child(String.valueOf(id)).setValue(record);
+
+            }while(cursor.moveToNext());
+        }
+
+        ((MainActivity)getActivity()).curtIndex = safeLongToInt(id);
+
+    }
+
+    public static int safeLongToInt(long l) {
+        if (l < Integer.MIN_VALUE || l > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException
+                    (l + " cannot be cast to int without changing its value.");
+        }
+        return (int) l;
+    }
+
+
+
+    public static class TimePickerFragment extends DialogFragment
+            implements TimePickerDialog.OnTimeSetListener {
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            int hour = prefs.getInt("wakeupHour", 0);
+            int minute = prefs.getInt("wakeupMinute", 0);
+
+
+            // Create a new instance of TimePickerDialog and return it
+            return new TimePickerDialog(getActivity(), this, hour, minute,
+                    DateFormat.is24HourFormat(getActivity()));
+        }
+
+        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                editor.putInt("wakeupHour", hourOfDay);
+                editor.putInt("wakeupMinute", minute);
+                editor.apply();
+        }
+    }
+
+//    public void showTimePicker(){
+//        DialogFragment newFragment = new TimePickerFragment();
+//        newFragment.show(getFragmentManager(), "timePicker");
+//    }
 
 
 }

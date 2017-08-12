@@ -67,10 +67,11 @@ public class LogInActivity extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
-                                        Intent intent = new Intent(LogInActivity.this, MainActivity.class);
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                        startActivity(intent);
+//                                        Intent intent = new Intent(LogInActivity.this, MainActivity.class);
+//                                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//                                        startActivity(intent);
+                                        finish();
                                     } else {
                                         AlertDialog.Builder builder = new AlertDialog.Builder(LogInActivity.this);
                                         builder.setMessage(task.getException().getMessage())

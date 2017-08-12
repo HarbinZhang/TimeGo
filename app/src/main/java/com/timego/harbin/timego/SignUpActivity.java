@@ -1,6 +1,5 @@
 package com.timego.harbin.timego;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
@@ -75,11 +74,13 @@ public class SignUpActivity extends AppCompatActivity {
                                         String time = f.format(cal.getTime());
 
                                         mDatabase.child("users").child(mUserId).child("newestTime").setValue(time);
+                                        mDatabase.child("users").child(mUserId).child("curtIndex").setValue(0);
 
-                                        Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                        startActivity(intent);
+//                                        Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
+//                                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//                                        startActivity(intent);
+                                        finish();
                                     } else {
                                         AlertDialog.Builder builder = new AlertDialog.Builder(SignUpActivity.this);
                                         builder.setMessage(task.getException().getMessage())
