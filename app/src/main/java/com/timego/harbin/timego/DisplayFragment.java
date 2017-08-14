@@ -54,7 +54,7 @@ public class DisplayFragment extends Fragment {
     private Typeface mTfRegular;
 
     protected String[] mParties = new String[] {
-            "study", "entertain", "sleep", "exercise"
+            "study", "entertain", "sleep", "exercise", "trash"
     };
 
 
@@ -192,6 +192,7 @@ public class DisplayFragment extends Fragment {
         todayTimeSum.put("entertain",0);
         todayTimeSum.put("sleep",0);
         todayTimeSum.put("exercise",0);
+        todayTimeSum.put("trash",0);
 
     }
 

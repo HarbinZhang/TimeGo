@@ -51,6 +51,9 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.ViewHolder
         }
     }
 
+    public RecordAdapter(){
+
+    }
     // Provide a suitable constructor (depends on the kind of dataset)
     public RecordAdapter(Context context, Cursor cursor) {
         this.context = context;
@@ -112,6 +115,8 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.ViewHolder
             holder.cv_container.setCardBackgroundColor(ContextCompat.getColor(this.context, R.color.sleep));
         }else if(type.equals("exercise")){
             holder.cv_container.setCardBackgroundColor(ContextCompat.getColor(this.context, R.color.exercise));
+        }else if(type.equals("trash")){
+            holder.cv_container.setCardBackgroundColor(ContextCompat.getColor(this.context, R.color.trash));
         }
 
 

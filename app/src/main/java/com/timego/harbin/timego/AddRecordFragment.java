@@ -139,6 +139,11 @@ public class AddRecordFragment extends Fragment {
                         addNewActivity();
                         curt_activity = "exercise";
                         break;
+                    case R.id.trash_btn:
+                        if(!checkRemainDuration()){return;}
+                        addNewActivity();
+                        curt_activity = "trash";
+                        break;
                 }
             }
         });
@@ -266,6 +271,8 @@ public class AddRecordFragment extends Fragment {
                 cursor.moveToFirst();
                 int theDuration = cursor.getInt(cursor.getColumnIndex(RecordContract.RecordEntry.COLUMN_DURATION));
                 last_time_cal.add(Calendar.MINUTE, -theDuration);
+                duration_remain += theDuration;
+                tv_duration_remain.setText(minToHour(duration_remain));
 
                 SimpleDateFormat dft = new SimpleDateFormat("HH:mm");
                 String time = dft.format(last_time_cal.getTime());
@@ -277,8 +284,6 @@ public class AddRecordFragment extends Fragment {
 
 
         }).attachToRecyclerView(mRecyclerView);
-
-
     }
 
 
@@ -297,7 +302,6 @@ public class AddRecordFragment extends Fragment {
         String time = prefs.getString("last_time", null);
 
 
-
         ContentValues cv = new ContentValues();
         cv.put(RecordContract.RecordEntry.COLUMN_TYPE, curt_activity);
         cv.put(RecordContract.RecordEntry.COLUMN_DURATION, duration);
@@ -314,10 +318,13 @@ public class AddRecordFragment extends Fragment {
         }
         mDb.insert(RecordContract.RecordEntry.TABLE_NAME, null, cv);
 
-        mAdapter.swapCursor(getRecords(dates[0], dates[1], dates[2]));
+        Cursor cursor = getRecords(dates[0], dates[1], dates[2]);
+        mAdapter.swapCursor(cursor);
 
         duration_remain -= duration;
         tv_duration_remain.setText(minToHour(duration_remain));
+
+        mRecyclerView.scrollToPosition(cursor.getCount()-1);
 
     }
 
@@ -382,7 +389,7 @@ public class AddRecordFragment extends Fragment {
                 String wakeupTime = time2String(prefs.getInt("wakeupHour", 0), prefs.getInt("wakeupMinute", 0));
 
                 curt_activity = "sleep";
-                efficient = 5;
+                efficient = 4;
                 duration = prefs.getInt("wakeupHour", 0) * 60 + prefs.getInt("wakeupMinute", 0);
                 addNewActivity();
                 time = time.substring(0,11) + wakeupTime;
@@ -392,7 +399,7 @@ public class AddRecordFragment extends Fragment {
             }
 
 
-
+            curt_activity = "study";
 
             try {
                 Date date = new SimpleDateFormat(pattern).parse(time);
@@ -485,6 +492,9 @@ public class AddRecordFragment extends Fragment {
         duration_tv.setText(minToHour(duration));
 
         duration_stack.clear();
+
+//        mLayoutManager.scrollToPosition
+
     }
 
     private String minToHour(int t){

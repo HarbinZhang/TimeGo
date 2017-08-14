@@ -3,9 +3,10 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="study">#98fb98</color>
-    <color name="entertain">#eee8aa</color>
-    <color name="sleep">#e6e6fa</color>
-    <color name="exercise">#87cefa</color>
+    <color name="study">#99CCFF</color>
+    <color name="entertain">#CCFFCC</color>
+    <color name="sleep">#FFCC99</color>
+    <color name="exercise">#FFCCCC</color>
     <color name="pieData">#696969</color>
+    <color name="trash">#CCCCCC</color>
 </resources>

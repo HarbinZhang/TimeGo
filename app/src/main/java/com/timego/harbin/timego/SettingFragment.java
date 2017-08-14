@@ -19,7 +19,10 @@ import com.timego.harbin.timego.database.Record;
 import com.timego.harbin.timego.database.RecordContract;
 import com.timego.harbin.timego.database.RecordDbHelper;
 
+import static com.timego.harbin.timego.MainActivity.curtIndex;
 import static com.timego.harbin.timego.MainActivity.editor;
+import static com.timego.harbin.timego.MainActivity.mDatabase;
+import static com.timego.harbin.timego.MainActivity.mUserId;
 import static com.timego.harbin.timego.MainActivity.prefs;
 
 
@@ -42,8 +45,6 @@ public class SettingFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
     }
 
     @Override
@@ -66,7 +67,6 @@ public class SettingFragment extends Fragment {
                 }else{
                     Toast.makeText(getContext(), "You need to login first", Toast.LENGTH_SHORT).show();
                 }
-
             }
         });
 
@@ -98,7 +98,6 @@ public class SettingFragment extends Fragment {
 
 
     private void syncRecord(){
-
         String selection = RecordContract.RecordEntry._ID + " >= " + String.valueOf(((MainActivity)getActivity()).curtIndex);
         Cursor cursor = mDb.query(RecordContract.RecordEntry.TABLE_NAME,
                 null,
@@ -126,11 +125,10 @@ public class SettingFragment extends Fragment {
 
                 String uid = ((MainActivity)getActivity()).mUserId;
                 ((MainActivity)getActivity()).mDatabase.child("users").child(uid).child(String.valueOf(id)).setValue(record);
-
             }while(cursor.moveToNext());
         }
-
         ((MainActivity)getActivity()).curtIndex = safeLongToInt(id);
+        mDatabase.child("users").child(mUserId).child("curtIndex").setValue(curtIndex);
 
     }
 

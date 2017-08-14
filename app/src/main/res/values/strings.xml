@@ -3,6 +3,7 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="title_setting">Setting</string>
 
     <!--For LogIn and SignUp-->
     <string name="password_hint">Password</string>
