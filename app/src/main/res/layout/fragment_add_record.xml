@@ -177,7 +177,6 @@
 
         <LinearLayout
             android:id="@+id/ll_record_efficient"
-            android:layout_below="@id/ll_record_type"
             android:paddingTop="6dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -262,21 +261,34 @@
 
         <LinearLayout
             android:id="@+id/ll_record_btn"
+            android:paddingTop="3dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
 
             <Button
                 android:id="@+id/main_hour_btn"
                 android:layout_width="0dp"
                 android:layout_weight="1"
+                android:layout_margin="5dip"
                 android:layout_height="wrap_content"
-                android:text="+1 Hour" />
+                android:padding="@dimen/padding_btn_addrecord"
+                android:background="@drawable/btn_addrecord"
+                android:text="+1 Hour"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                tools:ignore="ButtonStyle" />
 
             <Button
                 android:id="@+id/main_min_btn"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dip"
+                android:padding="@dimen/padding_btn_addrecord"
+                android:background="@drawable/btn_addrecord"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
                 android:text="+10 min" />
 
             <Button
@@ -284,6 +296,11 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dip"
+                android:padding="@dimen/padding_btn_addrecord"
+                android:background="@drawable/btn_addrecord"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
                 android:text="+1 min" />
 
 
@@ -292,6 +309,11 @@
                 android:text="Undo"
                 android:layout_width="0dp"
                 android:layout_weight="1"
+                android:layout_margin="5dip"
+                android:padding="@dimen/padding_btn_addrecord"
+                android:background="@drawable/btn_addrecord"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
                 android:layout_height="wrap_content" />
 
         </LinearLayout>
@@ -308,13 +330,23 @@
                 android:text="Reset"
                 android:layout_width="0dp"
                 android:layout_weight="2"
+                android:layout_margin="5dip"
+                android:padding="@dimen/padding_btn_addrecord"
+                android:background="@color/bg_btn_addrecord"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
                 android:layout_height="wrap_content" />
 
             <Button
                 android:id="@+id/main_ok_btn"
                 android:layout_width="0dp"
                 android:layout_weight="2"
+                android:layout_margin="5dip"
+                android:padding="@dimen/padding_btn_addrecord"
+                android:background="@color/bg_btn_addrecord"
                 android:layout_height="wrap_content"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
                 android:text="OK" />
 
         </LinearLayout>

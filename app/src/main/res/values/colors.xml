@@ -9,4 +9,9 @@
     <color name="exercise">#FFCCCC</color>
     <color name="pieData">#696969</color>
     <color name="trash">#CCCCCC</color>
+
+    <color name="bg_btn_addrecord">#99CCFF</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="red">#FF0033</color>
 </resources>
