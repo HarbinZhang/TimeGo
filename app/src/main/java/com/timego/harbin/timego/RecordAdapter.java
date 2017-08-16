@@ -11,6 +11,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.timego.harbin.timego.database.RecordContract;
@@ -27,6 +30,7 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.ViewHolder
     private SharedPreferences prefs;
     private SharedPreferences.Editor editor;
 
+    public int lastPosition = -1;
 
 
     // Provide a reference to the views for each data item
@@ -39,6 +43,7 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.ViewHolder
         public TextView tv_type;
         public TextView tv_duration;
         public TextView tv_efficient;
+        public ImageView img_efficient;
 
 
         public ViewHolder(View itemView) {
@@ -47,9 +52,21 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.ViewHolder
             tv_type = (TextView) itemView.findViewById(R.id.tv_record_type);
             tv_duration = (TextView) itemView.findViewById(R.id.tv_record_duration);
             tv_efficient = (TextView) itemView.findViewById(R.id.tv_record_efficient);
-
+            img_efficient = (ImageView) itemView.findViewById(R.id.img_record_efficient);
         }
+
+//        public void clearAnimation()
+//        {
+//            mRootLayout.clearAnimation();
+//        }
+
     }
+
+//    @Override
+//    public void onViewDetachedFromWindow(ViewHolder holder) {
+//        ((RecordAdapter.ViewHolder)holder).clearAnimation();
+//        super.onViewDetachedFromWindow(holder);
+//    }
 
     public RecordAdapter(){
 
@@ -107,6 +124,19 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.ViewHolder
         holder.tv_duration.setText(minToHour(duration));
         holder.tv_efficient.setText(String.valueOf(efficient));
 
+        if (efficient == 1){
+            holder.img_efficient.setImageResource(R.drawable.cry_32dp);
+        }else if(efficient == 2){
+            holder.img_efficient.setImageResource(R.drawable.soso_32dp);
+        }else if(efficient == 3){
+            holder.img_efficient.setImageResource(R.drawable.happy_32dp);
+        }else if(efficient == 4){
+            holder.img_efficient.setImageResource(R.drawable.amazing_32dp);
+        }else if(efficient == 5){
+            holder.img_efficient.setImageResource(R.drawable.perfect_32dp);
+        }
+
+
         if(type.equals("study")){
             holder.cv_container.setCardBackgroundColor(ContextCompat.getColor(this.context, R.color.study));
         }else if(type.equals("entertain")){
@@ -119,74 +149,19 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.ViewHolder
             holder.cv_container.setCardBackgroundColor(ContextCompat.getColor(this.context, R.color.trash));
         }
 
-
-//        if ( == 1){
-//            holder.cv_container.setCardBackgroundColor(Color.GRAY);
-//        }
-
-//        holder.cv_container.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                final Intent intent = new Intent(context, RecordActivity.class);
-//
-//
-//                final String loc_code = prefs.getString("scanned_loc_code",null);
-//                final String loc_name = prefs.getString("curt_loc_name", null);
-//
-//
-//
-//                if(loc_name == null){
-//                    intent.putExtra("loc_name", "");
-//                }else{
-////                    detail = new CheckInDetail(id, quantity, unit, loc_code, loc_name, certificate);
-//                    intent.putExtra("loc_name", loc_name);
-//                }
-//
-//                intent.putExtra("id", id);
-//                intent.putExtra("quantity", quantity);
-//                intent.putExtra("unit", unit);
-//                intent.putExtra("loc_code", loc_code);
-//                intent.putExtra("certificate", certificate);
-//                intent.putExtra("name", name);
-//                intent.putExtra("sqlId", sqlId);
-//
-//
-//
-//                if (loc_code == null){
-//                    AlertDialog.Builder builder;
-//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//                        builder = new AlertDialog.Builder(context, android.R.style.Theme_Material_Dialog_Alert);
-//                    } else {
-//                        builder = new AlertDialog.Builder(context);
-//                    }
-//                    builder.setTitle("货架未锁定")
-//                            .setMessage("确定继续吗？")
-//                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-//                                public void onClick(DialogInterface dialog, int which) {
-//
-//                                    context.startActivity(intent);
-//                                }
-//                            })
-//                            .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-//                                public void onClick(DialogInterface dialog, int which) {
-//                                    // do nothing
-//                                    return;
-//                                }
-//                            })
-//                            .setIcon(android.R.drawable.ic_dialog_alert)
-//                            .show();
-//                }else{
-//                    context.startActivity(intent);
-//                }
-//
-//
-//
-//            }
-//        });
-//
-
+        setAnimation(holder.itemView, position);
 
     }
+
+    private void setAnimation(View viewToAnimate, int position){
+        if (position > lastPosition)
+        {
+            Animation animation = AnimationUtils.loadAnimation(context, android.R.anim.slide_in_left);
+            viewToAnimate.startAnimation(animation);
+            lastPosition = position;
+        }
+    }
+
 
     // Return the size of your dataset (invoked by the layout manager)
     @Override
@@ -200,7 +175,12 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.ViewHolder
         if(newCursor != null){
             this.notifyDataSetChanged();
         }
+//        lastPosition = cursor.getCount()-1;
+//        Log.d("lastPosition: ", String.valueOf(lastPosition));
     }
+
+
+
 
     private Cursor getAllRecord(){
         return mDb.query(
@@ -213,6 +193,7 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.ViewHolder
                 null
         );
     }
+
 
     private String minToHour(int t){
         String hour = String.valueOf(t / 60);

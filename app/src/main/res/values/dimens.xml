@@ -4,4 +4,6 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="paddingForRadio">10dp</dimen>
     <dimen name="padding_btn_addrecord">6dp</dimen>
+    <dimen name="padding_tv_info">3dp</dimen>
+    <dimen name="corner_tv_info">15dp</dimen>
 </resources>

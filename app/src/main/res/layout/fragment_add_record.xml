@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/cardview_light_background"
     tools:context="com.timego.harbin.timego.AddRecordFragment">
 
     <LinearLayout
@@ -11,68 +12,50 @@
 
 
         <LinearLayout
+            android:padding="3dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_weight="2"
-                android:layout_height="wrap_content"
-                android:text="Last Record Time: "
-                />
 
             <TextView
                 android:id="@+id/tv_setting_last_time"
                 android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="2"
-                android:layout_height="wrap_content" />
-
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_weight="2"
-                android:text="Total Duration Remain: "
-                android:layout_height="wrap_content" />
-
+                android:background="@drawable/tv_addrecord_info_left"
+                android:gravity="center"
+                android:paddingBottom="@dimen/padding_tv_info"
+                android:paddingTop="@dimen/padding_tv_info"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
             <TextView
                 android:id="@+id/tv_setting_duration"
                 android:layout_width="0dp"
-                android:layout_weight="2"
                 android:layout_height="wrap_content"
-                />
-
-
-        </LinearLayout>
-
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:layout_width="0dp"
                 android:layout_weight="2"
-                android:layout_height="wrap_content"
-                android:text="Current Activity Duration: "
-                />
+                android:background="@drawable/tv_addrecord_info_mid"
+                android:gravity="center"
+                android:paddingBottom="@dimen/padding_tv_info"
+                android:paddingTop="@dimen/padding_tv_info"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
             <TextView
                 android:id="@+id/main_duration_tv"
                 android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="2"
-                android:layout_height="wrap_content"/>
+                android:background="@drawable/tv_addrecord_info_right"
+                android:gravity="center"
+                android:paddingBottom="@dimen/padding_tv_info"
+                android:paddingTop="@dimen/padding_tv_info"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
 
         </LinearLayout>
+
+
+
+
+
 
 
         <android.support.v7.widget.RecyclerView
@@ -80,6 +63,8 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
+            android:paddingLeft="3dp"
+            android:paddingRight="3dp"
             android:paddingBottom="3dp">
 
 

@@ -95,6 +95,8 @@ public class AddRecordFragment extends Fragment {
 
         initLastTime();
 
+
+        mRecyclerView.scrollToPosition(cursor.getCount()-1);
         return view;
     }
 
@@ -120,28 +122,28 @@ public class AddRecordFragment extends Fragment {
             public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
                 switch (checkedId){
                     case R.id.study_btn:
-                        if(!checkRemainDuration()){return;}
-                        addNewActivity();
+//                        if(!checkRemainDuration()){return;}
+//                        addNewActivity();
                         curt_activity = "study";
                         break;
                     case R.id.entertain_btn:
-                        if(!checkRemainDuration()){return;}
-                        addNewActivity();
+//                        if(!checkRemainDuration()){return;}
+//                        addNewActivity();
                         curt_activity = "entertain";
                         break;
                     case R.id.sleep_btn:
-                        if(!checkRemainDuration()){return;}
-                        addNewActivity();
+//                        if(!checkRemainDuration()){return;}
+//                        addNewActivity();
                         curt_activity = "sleep";
                         break;
                     case R.id.exercise_btn:
-                        if(!checkRemainDuration()){return;}
-                        addNewActivity();
+//                        if(!checkRemainDuration()){return;}
+//                        addNewActivity();
                         curt_activity = "exercise";
                         break;
                     case R.id.trash_btn:
-                        if(!checkRemainDuration()){return;}
-                        addNewActivity();
+//                        if(!checkRemainDuration()){return;}
+//                        addNewActivity();
                         curt_activity = "trash";
                         break;
                 }
@@ -174,18 +176,37 @@ public class AddRecordFragment extends Fragment {
         hour_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                duration_stack.push(60);
-                duration = duration + 60;
-                duration_tv.setText(minToHour(duration));
+                if (duration >= duration_remain){
+                    Toast.makeText(getContext(), "Not enough time slot for the activity.", Toast.LENGTH_SHORT).show();
+                    return;
+                }else if(duration + 60 > duration_remain){
+                    duration_stack.push(safeLongToInt(duration_remain));
+                    duration += safeLongToInt(duration_remain);
+                    duration_tv.setText(minToHour(duration));
+                }else {
+                    duration_stack.push(60);
+                    duration = duration + 60;
+                    duration_tv.setText(minToHour(duration));
+                }
             }
         });
 
         min_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                duration_stack.push(10);
-                duration = duration + 10;
-                duration_tv.setText(minToHour(duration));
+                if (duration >= duration_remain){
+                    Toast.makeText(getContext(), "Not enough time slot for the activity.", Toast.LENGTH_SHORT).show();
+                    return;
+                }else if(duration + 10 > duration_remain){
+                    duration_stack.push(safeLongToInt(duration_remain));
+                    duration += safeLongToInt(duration_remain);
+                    duration_tv.setText(minToHour(duration));
+                }else {
+                    duration_stack.push(10);
+                    duration = duration + 10;
+                    duration_tv.setText(minToHour(duration));
+                }
+
             }
         });
 
@@ -193,9 +214,15 @@ public class AddRecordFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-                duration_stack.push(1);
-                duration += 1;
-                duration_tv.setText(minToHour(duration));
+                if (duration_remain == 0){
+                    Toast.makeText(getContext(), "Not enough time slot for the activity.", Toast.LENGTH_SHORT).show();
+                    return;
+                }else {
+                    duration_stack.push(1);
+                    duration += 1;
+                    duration_tv.setText(minToHour(duration));
+                }
+
             }
         });
 
@@ -203,7 +230,7 @@ public class AddRecordFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(duration_stack.isEmpty()){
-                    Toast.makeText(getContext(), "no operation to undo", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "No operation to undo.", Toast.LENGTH_SHORT).show();
                 }else{
                     duration -= duration_stack.pop();
                     duration_tv.setText(minToHour(duration));
@@ -279,7 +306,9 @@ public class AddRecordFragment extends Fragment {
                 tv_last_time.setText(time.toString());
 
                 removeRecord(id);
+                mAdapter.lastPosition--;
                 mAdapter.swapCursor(getTodayRecords());
+
             }
 
 
@@ -532,5 +561,14 @@ public class AddRecordFragment extends Fragment {
         }
         return hour_s + ":" + min_s;
     }
+
+    public static int safeLongToInt(long l) {
+        if (l < Integer.MIN_VALUE || l > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException
+                    (l + " cannot be cast to int without changing its value.");
+        }
+        return (int) l;
+    }
+
 
 }

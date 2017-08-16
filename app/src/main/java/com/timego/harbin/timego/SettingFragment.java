@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -32,6 +33,7 @@ public class SettingFragment extends Fragment {
     private SQLiteDatabase mDb;
 
     private Button btn_timePicker;
+    private static TextView tv_wakeupTime;
 
     public SettingFragment() {
         // Required empty public constructor
@@ -55,6 +57,10 @@ public class SettingFragment extends Fragment {
 
         Button btn_sync = (Button) view.findViewById(R.id.btn_setting_sync);
 
+        tv_wakeupTime = (TextView) view.findViewById(R.id.tv_setting_wakeup_time);
+
+        tv_wakeupTime.setText(timeToString(prefs.getInt("wakeupHour",0))+":"+
+                timeToString(prefs.getInt("wakeupMinute",0)));
 
         RecordDbHelper dbHelper = new RecordDbHelper(getContext());
         mDb = dbHelper.getWritableDatabase();
@@ -129,7 +135,6 @@ public class SettingFragment extends Fragment {
         }
         ((MainActivity)getActivity()).curtIndex = safeLongToInt(id);
         mDatabase.child("users").child(mUserId).child("curtIndex").setValue(curtIndex);
-
     }
 
     public static int safeLongToInt(long l) {
@@ -139,7 +144,6 @@ public class SettingFragment extends Fragment {
         }
         return (int) l;
     }
-
 
 
     public static class TimePickerFragment extends DialogFragment
@@ -157,9 +161,11 @@ public class SettingFragment extends Fragment {
         }
 
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                editor.putInt("wakeupHour", hourOfDay);
-                editor.putInt("wakeupMinute", minute);
-                editor.apply();
+            editor.putInt("wakeupHour", hourOfDay);
+            editor.putInt("wakeupMinute", minute);
+            editor.apply();
+            tv_wakeupTime.setText(timeToString(hourOfDay)+":"+
+                timeToString(minute));
         }
     }
 
@@ -167,6 +173,14 @@ public class SettingFragment extends Fragment {
 //        DialogFragment newFragment = new TimePickerFragment();
 //        newFragment.show(getFragmentManager(), "timePicker");
 //    }
+
+    private static String timeToString(int t){
+        if (t<10){
+            return "0"+String.valueOf(t);
+        }else{
+            return String.valueOf(t);
+        }
+    }
 
 
 }
