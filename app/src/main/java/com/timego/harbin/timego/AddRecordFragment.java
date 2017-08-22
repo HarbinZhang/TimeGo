@@ -91,12 +91,12 @@ public class AddRecordFragment extends Fragment {
 
         duration_stack = new Stack<Integer>();
 
+        mRecyclerView.scrollToPosition(cursor.getCount()-1);
+
         initForXml(view);
 
         initLastTime();
 
-
-        mRecyclerView.scrollToPosition(cursor.getCount()-1);
         return view;
     }
 
@@ -180,8 +180,9 @@ public class AddRecordFragment extends Fragment {
                     Toast.makeText(getContext(), "Not enough time slot for the activity.", Toast.LENGTH_SHORT).show();
                     return;
                 }else if(duration + 60 > duration_remain){
-                    duration_stack.push(safeLongToInt(duration_remain));
-                    duration += safeLongToInt(duration_remain);
+                    int actualTime = safeLongToInt(duration_remain) - duration;
+                    duration_stack.push(actualTime);
+                    duration += actualTime;
                     duration_tv.setText(minToHour(duration));
                 }else {
                     duration_stack.push(60);
@@ -198,8 +199,9 @@ public class AddRecordFragment extends Fragment {
                     Toast.makeText(getContext(), "Not enough time slot for the activity.", Toast.LENGTH_SHORT).show();
                     return;
                 }else if(duration + 10 > duration_remain){
-                    duration_stack.push(safeLongToInt(duration_remain));
-                    duration += safeLongToInt(duration_remain);
+                    int actualTime = safeLongToInt(duration_remain) - duration;
+                    duration_stack.push(actualTime);
+                    duration += actualTime;
                     duration_tv.setText(minToHour(duration));
                 }else {
                     duration_stack.push(10);
@@ -214,7 +216,7 @@ public class AddRecordFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-                if (duration_remain == 0){
+                if (duration >= duration_remain){
                     Toast.makeText(getContext(), "Not enough time slot for the activity.", Toast.LENGTH_SHORT).show();
                     return;
                 }else {

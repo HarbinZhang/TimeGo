@@ -23,6 +23,11 @@ public class LogInActivity extends AppCompatActivity {
     protected TextView signUpTextView;
     private FirebaseAuth mFirebaseAuth;
 
+    private static final String TAG = MainActivity.class.getSimpleName();
+
+
+
+    
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -23,6 +23,8 @@ import com.timego.harbin.timego.database.RecordDbHelper;
 import static com.timego.harbin.timego.MainActivity.curtIndex;
 import static com.timego.harbin.timego.MainActivity.editor;
 import static com.timego.harbin.timego.MainActivity.mDatabase;
+import static com.timego.harbin.timego.MainActivity.mFirebaseAuth;
+import static com.timego.harbin.timego.MainActivity.mFirebaseUser;
 import static com.timego.harbin.timego.MainActivity.mUserId;
 import static com.timego.harbin.timego.MainActivity.prefs;
 
@@ -104,6 +106,12 @@ public class SettingFragment extends Fragment {
 
 
     private void syncRecord(){
+
+        if(mFirebaseAuth == null || mFirebaseUser == null){
+            Toast.makeText(getContext(), "You need to Sign in first.",Toast.LENGTH_LONG).show();
+            return;
+        }
+
         String selection = RecordContract.RecordEntry._ID + " >= " + String.valueOf(((MainActivity)getActivity()).curtIndex);
         Cursor cursor = mDb.query(RecordContract.RecordEntry.TABLE_NAME,
                 null,
@@ -135,6 +143,7 @@ public class SettingFragment extends Fragment {
         }
         ((MainActivity)getActivity()).curtIndex = safeLongToInt(id);
         mDatabase.child("users").child(mUserId).child("curtIndex").setValue(curtIndex);
+        Toast.makeText(getContext(),"Sync successful.", Toast.LENGTH_LONG).show();
     }
 
     public static int safeLongToInt(long l) {
