@@ -100,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
 //            transaction.add(R.id.main_container, fragment).commit();
 //
 //        }
-
     }
 
 
@@ -182,8 +181,5 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-
-
 
 }
