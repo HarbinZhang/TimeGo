@@ -1,5 +1,6 @@
 package com.timego.harbin.timego;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -24,25 +25,27 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import static com.timego.harbin.timego.MainActivity.mDatabase;
+import static com.timego.harbin.timego.MainActivity.mFirebaseAuth;
+import static com.timego.harbin.timego.MainActivity.mFirebaseUser;
+
 public class SignUpActivity extends FragmentActivity implements
         GoogleApiClient.OnConnectionFailedListener{
 
-    protected EditText passwordEditText;
+    protected EditText passwordEditText, passwordEditText2;
     protected EditText emailEditText;
     protected Button signUpButton;
-    private FirebaseAuth mFirebaseAuth;
+//    private FirebaseAuth mFirebaseAuth;
+    private Context mContext;
 
-    private FirebaseUser mFirebaseUser;
-    private DatabaseReference mDatabase;
+//    private FirebaseUser mFirebaseUser;
+//    private DatabaseReference mDatabase;
     private String mUserId;
 
 
@@ -63,9 +66,11 @@ public class SignUpActivity extends FragmentActivity implements
         setContentView(R.layout.activity_sign_up);
 
         // Initialize FirebaseAuth
-        mFirebaseAuth = FirebaseAuth.getInstance();
+//        mFirebaseAuth = FirebaseAuth.getInstance();
+        mContext = this;
 
         passwordEditText = (EditText)findViewById(R.id.passwordField);
+        passwordEditText2 = (EditText) findViewById(R.id.passwordField2);
         emailEditText = (EditText)findViewById(R.id.emailField);
         signUpButton = (Button)findViewById(R.id.signupButton);
 
@@ -174,7 +179,15 @@ public class SignUpActivity extends FragmentActivity implements
             @Override
             public void onClick(View v) {
                 String password = passwordEditText.getText().toString();
+                String password2 = passwordEditText2.getText().toString();
                 String email = emailEditText.getText().toString();
+
+                if(!password.equals(password2)){
+                    Toast.makeText(mContext, "The password doesn't match.", Toast.LENGTH_SHORT).show();
+                    passwordEditText.setText("");
+                    passwordEditText2.setText("");
+                    return;
+                }
 
                 password = password.trim();
                 email = email.trim();

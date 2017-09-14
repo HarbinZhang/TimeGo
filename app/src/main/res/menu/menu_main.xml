@@ -1,23 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <item
         android:id="@+id/menu_logout"
         android:icon="@drawable/account_32dp"
         android:title="Logout"
         app:showAsAction="collapseActionView" />
+
     <item
         android:id="@+id/menu_signin"
         android:icon="@drawable/account_32dp"
         android:title="Sign In"
         app:showAsAction="collapseActionView"/>
+
     <item
         android:id="@+id/menu_signup"
         android:icon="@drawable/signup_32dp"
         android:title="Sign Up"
         app:showAsAction="collapseActionView"/>
+
     <item
         android:id="@+id/menu_feedback"
         android:title="@string/menu_feedback"
         app:showAsAction="collapseActionView"/>
+
+    <item
+        android:id="@+id/menu_about"
+        android:title="About"
+        app:showAsAction="collapseActionView"/>
+
+    <item
+        android:id="@+id/menu_today_pei"
+        android:title="Today"
+        app:showAsAction="collapseActionView"/>
+
+    <item
+        android:id="@+id/menu_week_pie"
+        android:title="Week Pie"
+        app:showAsAction="collapseActionView"/>
+
+    <item
+        android:id="@+id/menu_month_pie"
+        android:title="Month Pie"
+        app:showAsAction="collapseActionView"/>
+
+    <item
+        android:id="@+id/menu_week_line"
+        android:title="Week Line"
+        app:showAsAction="collapseActionView"/>
+
 </menu>

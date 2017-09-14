@@ -3,7 +3,6 @@
     package="com.timego.harbin.timego">
 
     <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
 
     <application
@@ -23,8 +22,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".LogInActivity"
-            android:theme="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen"/>
-        <activity android:name=".SignUpActivity" />
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen" />
+        <activity android:name=".SignUpActivity"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen" />
         <activity android:name=".RecordAdapter"></activity>
 
 

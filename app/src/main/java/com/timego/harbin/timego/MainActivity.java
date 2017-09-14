@@ -3,12 +3,17 @@ package com.timego.harbin.timego;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,6 +27,15 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.timego.harbin.timego.database.RecordContract;
+import com.timego.harbin.timego.database.RecordDbHelper;
+
+import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,7 +44,11 @@ public class MainActivity extends AppCompatActivity {
     protected static DatabaseReference mDatabase;
     protected static String mUserId;
 
+
+    protected static SQLiteDatabase mDb;
+
     private Fragment fragment;
+    private String curtFragment;
 
     protected static SharedPreferences prefs;
     protected static SharedPreferences.Editor editor;
@@ -38,6 +56,14 @@ public class MainActivity extends AppCompatActivity {
     private Context mContext;
 
     protected static int curtIndex;
+
+    protected static Map<String,Integer> timeSum = new HashMap<>();
+
+    private FragmentTransaction transaction;
+
+//    protected static Map<String, String> moreActivities2Color = new HashMap<>();
+
+    protected static JSONObject moreActivities2Color;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -47,22 +73,28 @@ public class MainActivity extends AppCompatActivity {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
                     fragment = new AddRecordFragment();
+                    curtFragment = "home";
+                    invalidateOptionsMenu();
                     break;
                 case R.id.navigation_dashboard:
-                    fragment = new DisplayFragment();
+                    prepareTodayTimeSum();
+                    fragment = new DisplayPieFragment();
+                    curtFragment = "dashboard";
+                    invalidateOptionsMenu();
                     break;
-                case R.id.navigation_notifications:
+                case R.id.navigation_setting:
                     fragment = new SettingFragment();
+                    curtFragment = "setting";
+                    invalidateOptionsMenu();
                     break;
             }
 //            final FragmentTransaction transaction = fragmentManager.beginTransaction();
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.main_container, fragment).commit();
 //            transaction.add(R.id.main_container, fragment);
 //            transaction.commit();
             return true;
         }
-
     };
 
 
@@ -75,9 +107,20 @@ public class MainActivity extends AppCompatActivity {
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
 
+
         // SharedPreference
         prefs = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
         editor = prefs.edit();
+
+        // Prepare for moreActivities
+        String moreActivities2Color_str = prefs.getString("moreActivities", "{\"More\":\"#FFFFFF\"}");
+        try {
+            moreActivities2Color = new JSONObject(moreActivities2Color_str);
+
+        }catch (Exception e){
+
+        }
+
 
         // Initialize Firebase Auth
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -86,20 +129,13 @@ public class MainActivity extends AppCompatActivity {
         fragment = new AddRecordFragment();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.add(R.id.main_container, fragment).commit();
+        curtFragment = "home";
 
         mContext = this;
 
-//        if (mFirebaseUser == null) {
-//            // Not logged in, launch the Log In activity
-//            loadLogInView();
-//        }else{
-//            mUserId = mFirebaseUser.getUid();
-//
-//            fragment = new AddRecordFragment();
-//            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-//            transaction.add(R.id.main_container, fragment).commit();
-//
-//        }
+        RecordDbHelper dbHelper = new RecordDbHelper(this);
+        mDb = dbHelper.getWritableDatabase();
+
     }
 
 
@@ -155,12 +191,36 @@ public class MainActivity extends AppCompatActivity {
                 FirebaseAuth.getInstance().signOut();
                 mFirebaseUser = null;
                 mFirebaseAuth = null;
-
-                Toast.makeText(mContext, "Logout successful.", Toast.LENGTH_SHORT).show();
-
+                Toast.makeText(mContext, "Logout successful.", Toast.LENGTH_LONG).show();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                     invalidateOptionsMenu();
                 }
+                break;
+            case R.id.menu_about:
+                showAbout();
+                break;
+            case R.id.menu_today_pei:
+                prepareTodayTimeSum();
+                fragment = new DisplayPieFragment();
+                transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.main_container, fragment).commit();
+                break;
+            case R.id.menu_week_pie:
+                prepareWeekTimeSum();
+                fragment = new DisplayPieFragment();
+                transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.main_container, fragment).commit();
+                break;
+            case R.id.menu_month_pie:
+                prepareMonthTimeSum();
+                fragment = new DisplayPieFragment();
+                transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.main_container, fragment).commit();
+                break;
+            case R.id.menu_week_line:
+                fragment = new DisplayLineFragment();
+                transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.main_container, fragment).commit();
                 break;
         }
 
@@ -180,6 +240,152 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void showAbout(){
+        AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+        alertDialog.setTitle("About TimeGo");
+        String info = "Happy finding you here : ) \n\n\n\n\n";
+        try {
+            PackageInfo pInfo = this.getPackageManager().getPackageInfo(getPackageName(), 0);
+            info += "\t\t\tTimeGo\t\t\t" + pInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        alertDialog.setMessage(info);
+        alertDialog.setCancelable(true);
+//        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+//                new DialogInterface.OnClickListener() {
+//                    public void onClick(DialogInterface dialog, int which) {
+//                        dialog.dismiss();
+//                    }
+//                });
+        alertDialog.show();
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+
+        switch (curtFragment){
+            case "home":
+                menu.findItem(R.id.menu_about).setVisible(true);
+                menu.findItem(R.id.menu_feedback).setVisible(true);
+                menu.findItem(R.id.menu_today_pei).setVisible(false);
+                menu.findItem(R.id.menu_week_pie).setVisible(false);
+                menu.findItem(R.id.menu_month_pie).setVisible(false);
+                break;
+            case "dashboard":
+                menu.findItem(R.id.menu_about).setVisible(false);
+                menu.findItem(R.id.menu_feedback).setVisible(false);
+                menu.findItem(R.id.menu_today_pei).setVisible(true);
+                menu.findItem(R.id.menu_week_pie).setVisible(true);
+                menu.findItem(R.id.menu_month_pie).setVisible(true);
+                break;
+            case "setting":
+                menu.findItem(R.id.menu_about).setVisible(true);
+                menu.findItem(R.id.menu_feedback).setVisible(true);
+                menu.findItem(R.id.menu_today_pei).setVisible(false);
+                menu.findItem(R.id.menu_week_pie).setVisible(false);
+                menu.findItem(R.id.menu_month_pie).setVisible(false);
+                break;
+        }
+
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    private Cursor getRecords(String year, String month, String day){
+        String whereCluse = RecordContract.RecordEntry.COLUMN_YEAR + " = '" + year + "' AND " +
+                RecordContract.RecordEntry.COLUMN_MONTH + " = '" + month + "' AND " +
+                RecordContract.RecordEntry.COLUMN_DAY + " = '" + day + "' ";
+        return mDb.query(
+                RecordContract.RecordEntry.TABLE_NAME,
+                null,
+                whereCluse,
+                null,
+                null,
+                null,
+                null
+        );
+    }
+
+
+    private Cursor getTodayRecords(){
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        String date = df.format(calendar.getTime());
+        String[] dates = date.split("-");
+
+        return getRecords(dates[0], dates[1], dates[2]);
+    }
+
+    private void mapInit(){
+        timeSum.clear();
+        timeSum.put("study",0);
+        timeSum.put("entertain",0);
+        timeSum.put("sleep",0);
+        timeSum.put("exercise",0);
+        timeSum.put("trash",0);
+    }
+
+    private void prepareTodayTimeSum(){
+        mapInit();
+
+        Cursor cursor = getTodayRecords();
+        if (cursor != null){
+            if(cursor.moveToFirst()){
+                do{
+                    int curtDuration = cursor.getInt(cursor.getColumnIndex(RecordContract.RecordEntry.COLUMN_DURATION));
+                    String type = cursor.getString(cursor.getColumnIndex(RecordContract.RecordEntry.COLUMN_TYPE));
+                    timeSum.put(type, curtDuration + timeSum.get(type));
+                }while(cursor.moveToNext());
+            }
+        }
+    }
+
+    private void prepareWeekTimeSum(){
+        mapInit();
+
+        for (int i = 0; i < 7; i++){
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.DAY_OF_MONTH,-i);
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            String date = df.format(calendar.getTime());
+            String[] dates = date.split("-");
+
+            Cursor cursor = getRecords(dates[0], dates[1], dates[2]);
+            if (cursor != null){
+                if(cursor.moveToFirst()){
+                    do{
+                        int curtDuration = cursor.getInt(cursor.getColumnIndex(RecordContract.RecordEntry.COLUMN_DURATION));
+                        String type = cursor.getString(cursor.getColumnIndex(RecordContract.RecordEntry.COLUMN_TYPE));
+                        timeSum.put(type, curtDuration + timeSum.get(type));
+                    }while(cursor.moveToNext());
+                }
+            }
+        }
+    }
+
+    private void prepareMonthTimeSum(){
+        mapInit();
+
+        for (int i = 0; i < 30; i++){
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.DAY_OF_MONTH,-i);
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            String date = df.format(calendar.getTime());
+            String[] dates = date.split("-");
+
+            Cursor cursor = getRecords(dates[0], dates[1], dates[2]);
+            if (cursor != null){
+                if(cursor.moveToFirst()){
+                    do{
+                        int curtDuration = cursor.getInt(cursor.getColumnIndex(RecordContract.RecordEntry.COLUMN_DURATION));
+                        String type = cursor.getString(cursor.getColumnIndex(RecordContract.RecordEntry.COLUMN_TYPE));
+                        timeSum.put(type, curtDuration + timeSum.get(type));
+                    }while(cursor.moveToNext());
+                }
+            }
+        }
     }
 
 }

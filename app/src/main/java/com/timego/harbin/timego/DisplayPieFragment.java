@@ -1,6 +1,5 @@
 package com.timego.harbin.timego;
 
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -28,15 +27,14 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.timego.harbin.timego.database.RecordContract;
-import com.timego.harbin.timego.database.RecordDbHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
 
-public class DisplayFragment extends Fragment {
+import static com.timego.harbin.timego.MainActivity.timeSum;
+
+public class DisplayPieFragment extends Fragment {
 
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
@@ -47,7 +45,7 @@ public class DisplayFragment extends Fragment {
 
     private ArrayList<String> mType = new ArrayList<>();
 
-    private Map<String,Integer> todayTimeSum = new HashMap<>();
+//    private Map<String,Integer> timeSum = new HashMap<>();
 
     private PieChart mChart;
     private Typeface mTfLight;
@@ -60,7 +58,7 @@ public class DisplayFragment extends Fragment {
 
     private SQLiteDatabase mDb;
 
-    public DisplayFragment() {
+    public DisplayPieFragment() {
         // Required empty public constructor
     }
 
@@ -76,7 +74,7 @@ public class DisplayFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view =  inflater.inflate(R.layout.fragment_display, container, false);
+        View view =  inflater.inflate(R.layout.fragment_display_pie, container, false);
 //        mFirebaseAuth = FirebaseAuth.getInstance();
 //        mFirebaseUser = mFirebaseAuth.getCurrentUser();
 //        mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -87,21 +85,13 @@ public class DisplayFragment extends Fragment {
         String date = df.format(calendar.getTime());
 
 
-        RecordDbHelper dbHelper = new RecordDbHelper(getContext());
-        mDb = dbHelper.getReadableDatabase();
+//        RecordDbHelper dbHelper = new RecordDbHelper(getContext());
+//        mDb = dbHelper.getReadableDatabase();
 
-        mapInit();
 
-        Cursor cursor = getTodayRecords();
-        if (cursor != null){
-            if(cursor.moveToFirst()){
-                do{
-                    int curtDuration = cursor.getInt(cursor.getColumnIndex(RecordContract.RecordEntry.COLUMN_DURATION));
-                    String type = cursor.getString(cursor.getColumnIndex(RecordContract.RecordEntry.COLUMN_TYPE));
-                    todayTimeSum.put(type, curtDuration + todayTimeSum.get(type));
-                }while(cursor.moveToNext());
-            }
-        }
+
+
+
 
 
 //        final Query todayList = mDatabase.child("users").child(mUserId).child("records").orderByChild("date").equalTo(date);
@@ -111,10 +101,10 @@ public class DisplayFragment extends Fragment {
 //                mapInit();
 //                for(DataSnapshot ds:dataSnapshot.getChildren()){
 //                    Record record = ds.getValue(Record.class);
-//                    int curtDuration = todayTimeSum.get(record.type) + record.duration;
-//                    todayTimeSum.put(record.type, curtDuration);
+//                    int curtDuration = timeSum.get(record.type) + record.duration;
+//                    timeSum.put(record.type, curtDuration);
 //                }
-////                arrayAdapter.add(todayTimeSum.get("study").toString());
+////                arrayAdapter.add(timeSum.get("study").toString());
 //                if(isAdded()){
 //                    setData();
 //                }
@@ -186,15 +176,7 @@ public class DisplayFragment extends Fragment {
         return view;
     }
 
-    private void mapInit(){
-        todayTimeSum.clear();
-        todayTimeSum.put("study",0);
-        todayTimeSum.put("entertain",0);
-        todayTimeSum.put("sleep",0);
-        todayTimeSum.put("exercise",0);
-        todayTimeSum.put("trash",0);
 
-    }
 
     private void setData() {
 
@@ -202,12 +184,12 @@ public class DisplayFragment extends Fragment {
 
         // NOTE: The order of the entries when being added to the entries array determines their position around the center of
         // the chart.
-        for (int i = 0; i < todayTimeSum.size() ; i++) {
-            int duration = todayTimeSum.get(mParties[i]);
+        for (int i = 0; i < timeSum.size() ; i++) {
+            int duration = timeSum.get(mParties[i]);
             if(duration == 0){
                 continue;
             }
-            entries.add(new PieEntry((float) (todayTimeSum.get(mParties[i])),
+            entries.add(new PieEntry((float) (timeSum.get(mParties[i])),
                     mParties[i % mParties.length],
                     getResources().getDrawable(R.drawable.star)));
         }
@@ -277,31 +259,6 @@ public class DisplayFragment extends Fragment {
     }
 
 
-
-    private Cursor getRecords(String year, String month, String day){
-        String whereCluse = RecordContract.RecordEntry.COLUMN_YEAR + " = '" + year + "' AND " +
-                RecordContract.RecordEntry.COLUMN_MONTH + " = '" + month + "' AND " +
-                RecordContract.RecordEntry.COLUMN_DAY + " = '" + day + "' ";
-        return mDb.query(
-                RecordContract.RecordEntry.TABLE_NAME,
-                null,
-                whereCluse,
-                null,
-                null,
-                null,
-                null
-        );
-    }
-
-
-    private Cursor getTodayRecords(){
-        Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-        String date = df.format(calendar.getTime());
-        String[] dates = date.split("-");
-
-        return getRecords(dates[0], dates[1], dates[2]);
-    }
 
 
     private boolean removeRecord(long id){

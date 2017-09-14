@@ -82,7 +82,7 @@
 
                 android:id="@+id/main_radioGroup"
                 android:layout_width="0dp"
-                android:layout_weight="4"
+                android:layout_weight="5"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
@@ -154,6 +154,19 @@
 
             </RadioGroup>
 
+
+            <android.support.v7.widget.AppCompatSpinner
+                android:id="@+id/sp_add_record_more"
+                android:background="@drawable/rbtn_selector"
+                style="@style/mySpinnerItemStyle"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:spinnerMode="dialog"
+                android:gravity="right"
+                android:layout_height="match_parent">
+
+
+            </android.support.v7.widget.AppCompatSpinner>
 
 
         </LinearLayout>

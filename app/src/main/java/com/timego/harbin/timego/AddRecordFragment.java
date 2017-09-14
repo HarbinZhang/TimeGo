@@ -2,7 +2,6 @@ package com.timego.harbin.timego;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
@@ -15,8 +14,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,12 +26,17 @@ import com.timego.harbin.timego.database.RecordContract;
 import com.timego.harbin.timego.database.RecordDbHelper;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Stack;
 import java.util.concurrent.TimeUnit;
 
 import static com.timego.harbin.timego.MainActivity.editor;
+import static com.timego.harbin.timego.MainActivity.mDb;
+import static com.timego.harbin.timego.MainActivity.moreActivities2Color;
 import static com.timego.harbin.timego.MainActivity.prefs;
 
 
@@ -47,8 +54,6 @@ public class AddRecordFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private RecordAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    private SQLiteDatabase mDb;
-
 
 
     private Calendar last_time_cal = Calendar.getInstance();
@@ -56,6 +61,9 @@ public class AddRecordFragment extends Fragment {
 
 
     private Stack<Integer> duration_stack;
+
+
+    private Spinner sp_more;
 
 
     public AddRecordFragment() {
@@ -78,7 +86,7 @@ public class AddRecordFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         RecordDbHelper dbHelper = new RecordDbHelper(getContext());
-        mDb = dbHelper.getWritableDatabase();
+//        mDb = dbHelper.getWritableDatabase();
 
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
@@ -97,6 +105,9 @@ public class AddRecordFragment extends Fragment {
 
         initLastTime();
 
+
+
+
         return view;
     }
 
@@ -114,6 +125,32 @@ public class AddRecordFragment extends Fragment {
         tv_duration_remain = (TextView) view.findViewById(R.id.tv_setting_duration);
         btn_reset = (Button) view.findViewById(R.id.btn_record_reset);
         btn_undo = (Button) view.findViewById(R.id.btn_record_undo);
+
+        // init spinner for "more" option
+        sp_more = (Spinner) view.findViewById(R.id.sp_add_record_more);
+        Iterator keysToCopyIterator = moreActivities2Color.keys();
+        List<String> keysList = new ArrayList<String>();
+        while(keysToCopyIterator.hasNext()) {
+            String key = (String) keysToCopyIterator.next();
+            keysList.add(key);
+        }
+        final String[] moreActivities = keysList.toArray(new String[keysList.size()]);
+
+        ArrayAdapter<String> moreAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, moreActivities);
+        sp_more.setAdapter(moreAdapter);
+        sp_more.setVisibility(View.VISIBLE);
+        sp_more.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                curt_activity = moreActivities[position];
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
 
         duration = 0;
         duration_tv.setText(minToHour(duration));
@@ -303,9 +340,12 @@ public class AddRecordFragment extends Fragment {
                 duration_remain += theDuration;
                 tv_duration_remain.setText(minToHour(duration_remain));
 
-                SimpleDateFormat dft = new SimpleDateFormat("HH:mm");
+                SimpleDateFormat dft = new SimpleDateFormat("yyyy-MM-dd HH:mm");
                 String time = dft.format(last_time_cal.getTime());
-                tv_last_time.setText(time.toString());
+                tv_last_time.setText(time.toString().substring(11));
+
+                editor.putString("last_time", time);
+                editor.apply();
 
                 removeRecord(id);
                 mAdapter.lastPosition--;

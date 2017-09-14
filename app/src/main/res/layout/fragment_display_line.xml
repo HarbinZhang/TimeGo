@@ -1,0 +1,126 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.timego.harbin.timego.DisplayLineFragment">
+
+
+
+
+
+    <com.github.mikephil.charting.charts.LineChart
+        android:id="@+id/display_line"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/linearLayout">
+
+
+    </com.github.mikephil.charting.charts.LineChart>
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="8dp"
+        android:id="@+id/linearLayout">
+
+        <RadioGroup
+
+            android:id="@+id/main_radioGroup"
+            android:layout_width="0dp"
+            android:layout_weight="5"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/study_btn"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rbtn_selector"
+                android:textColor="@drawable/rbtn_textcolor_selector"
+                android:button="@null"
+                android:checked="true"
+                android:textAlignment="center"
+                android:paddingTop="@dimen/paddingForRadio"
+                android:paddingBottom="@dimen/paddingForRadio"
+                android:text="Study" />
+
+            <RadioButton
+                android:id="@+id/entertain_btn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/rbtn_selector"
+                android:textColor="@drawable/rbtn_textcolor_selector"
+                android:button="@null"
+                android:textAlignment="center"
+                android:paddingTop="@dimen/paddingForRadio"
+                android:paddingBottom="@dimen/paddingForRadio"
+                android:text="Entertain" />
+
+            <RadioButton
+                android:id="@+id/sleep_btn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/rbtn_selector"
+                android:textColor="@drawable/rbtn_textcolor_selector"
+                android:button="@null"
+                android:textAlignment="center"
+                android:paddingTop="@dimen/paddingForRadio"
+                android:paddingBottom="@dimen/paddingForRadio"
+                android:text="Sleep" />
+
+            <RadioButton
+                android:id="@+id/exercise_btn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/rbtn_selector"
+                android:textColor="@drawable/rbtn_textcolor_selector"
+                android:button="@null"
+                android:textAlignment="center"
+                android:paddingTop="@dimen/paddingForRadio"
+                android:paddingBottom="@dimen/paddingForRadio"
+                android:text="Exercise" />
+
+            <RadioButton
+                android:id="@+id/trash_btn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/rbtn_selector"
+                android:textColor="@drawable/rbtn_textcolor_selector"
+                android:button="@null"
+                android:textAlignment="center"
+                android:paddingTop="@dimen/paddingForRadio"
+                android:paddingBottom="@dimen/paddingForRadio"
+                android:text="Trash" />
+
+        </RadioGroup>
+
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/sp_display_line_more"
+            android:background="@drawable/rbtn_selector"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:spinnerMode="dialog"
+            android:layout_height="match_parent">
+
+
+        </android.support.v7.widget.AppCompatSpinner>
+
+
+    </LinearLayout>
+
+
+
+
+
+</RelativeLayout>

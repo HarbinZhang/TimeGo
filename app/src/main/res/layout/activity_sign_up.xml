@@ -42,7 +42,6 @@
         android:ems="10"
         android:inputType="textPassword"
         android:hint="Re Password"
-        android:layout_marginBottom="17dp"
         android:layout_above="@+id/signupButton"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
@@ -67,8 +66,7 @@
         android:layout_height="wrap_content"
         android:backgroundTint="@android:color/holo_green_dark"
         android:text="@string/sign_up_button_label"
-        android:layout_marginBottom="50dp"
-        android:layout_alignParentBottom="true"
+        android:layout_above="@+id/btn_signin_google"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
@@ -77,6 +75,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="12dp" />
 
 </RelativeLayout>
