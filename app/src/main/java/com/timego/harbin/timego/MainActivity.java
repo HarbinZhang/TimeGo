@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
         editor = prefs.edit();
 
         // Prepare for moreActivities
-        String moreActivities2Color_str = prefs.getString("moreActivities", "{\"More\":\"#FFFFFF\"}");
+        String moreActivities2Color_str = prefs.getString("moreActivities", "{\"more\":\"#FFFFFF\"}");
         try {
             moreActivities2Color = new JSONObject(moreActivities2Color_str);
 
@@ -273,6 +273,7 @@ public class MainActivity extends AppCompatActivity {
                 menu.findItem(R.id.menu_today_pei).setVisible(false);
                 menu.findItem(R.id.menu_week_pie).setVisible(false);
                 menu.findItem(R.id.menu_month_pie).setVisible(false);
+                menu.findItem(R.id.menu_week_line).setVisible(false);
                 break;
             case "dashboard":
                 menu.findItem(R.id.menu_about).setVisible(false);
@@ -287,9 +288,9 @@ public class MainActivity extends AppCompatActivity {
                 menu.findItem(R.id.menu_today_pei).setVisible(false);
                 menu.findItem(R.id.menu_week_pie).setVisible(false);
                 menu.findItem(R.id.menu_month_pie).setVisible(false);
+                menu.findItem(R.id.menu_week_line).setVisible(false);
                 break;
         }
-
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -318,13 +319,14 @@ public class MainActivity extends AppCompatActivity {
         return getRecords(dates[0], dates[1], dates[2]);
     }
 
-    private void mapInit(){
+    protected static void mapInit(){
         timeSum.clear();
         timeSum.put("study",0);
         timeSum.put("entertain",0);
         timeSum.put("sleep",0);
         timeSum.put("exercise",0);
-        timeSum.put("trash",0);
+        timeSum.put("waste",0);
+        timeSum.put("more", 0);
     }
 
     private void prepareTodayTimeSum(){

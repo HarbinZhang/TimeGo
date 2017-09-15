@@ -1,10 +1,11 @@
 package com.timego.harbin.timego;
 
-import android.database.sqlite.SQLiteDatabase;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -27,38 +29,29 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.listener.ChartTouchListener;
 import com.github.mikephil.charting.listener.OnChartGestureListener;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
 import com.timego.harbin.timego.database.RecordContract;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class DisplayLineFragment extends Fragment implements OnChartGestureListener, OnChartValueSelectedListener {
+import static com.timego.harbin.timego.MainActivity.mDb;
 
-    private FirebaseAuth mFirebaseAuth;
-    private FirebaseUser mFirebaseUser;
-    private DatabaseReference mDatabase;
-    private String mUserId;
+public class DisplayLineFragment extends Fragment implements OnChartGestureListener, OnChartValueSelectedListener {
 
     private ListView today_lv;
 
-    private ArrayList<String> mType = new ArrayList<>();
-
-//    private Map<String,Integer> timeSum = new HashMap<>();
+    private ArrayList<Entry> activity_time_array = new ArrayList<>();
 
     private LineChart mChart;
-    private Typeface mTfLight;
-    private Typeface mTfRegular;
+
+    private RadioGroup rad_activities;
+
 
     protected String[] mParties = new String[] {
-            "study", "entertain", "sleep", "exercise", "trash"
+            "study", "entertain", "sleep", "exercise", "waste", "more"
     };
 
-
-    private SQLiteDatabase mDb;
 
 
     private Spinner sp_more;
@@ -86,6 +79,33 @@ public class DisplayLineFragment extends Fragment implements OnChartGestureListe
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         String date = df.format(calendar.getTime());
 
+        rad_activities = (RadioGroup) view.findViewById(R.id.radioGroup_line_display_activities);
+        rad_activities.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
+                switch (checkedId){
+                    case R.id.study_btn:
+                        getWeekDateForActivity("study");
+                        break;
+                    case R.id.entertain_btn:
+                        getWeekDateForActivity("entertain");
+                        break;
+                    case R.id.sleep_btn:
+                        getWeekDateForActivity("sleep");
+                        break;
+                    case R.id.exercise_btn:
+                        getWeekDateForActivity("exercise");
+                        break;
+                    case R.id.waste_btn:
+                        getWeekDateForActivity("waste");
+                        break;
+                    case R.id.more_btn:
+                        getWeekDateForActivity("more");
+                        break;
+
+                }
+            }
+        });
 
 
         // init spinner for "more" option
@@ -113,8 +133,6 @@ public class DisplayLineFragment extends Fragment implements OnChartGestureListe
 
 
         // pie chart
-        mTfLight = Typeface.createFromAsset(getResources().getAssets(), "OpenSans-Light.ttf");
-        mTfRegular = Typeface.createFromAsset(getResources().getAssets(), "OpenSans-Regular.ttf");
         mChart = (LineChart) view.findViewById(R.id.display_line);
         mChart.setOnChartGestureListener(this);
         mChart.setOnChartValueSelectedListener(this);
@@ -160,14 +178,14 @@ public class DisplayLineFragment extends Fragment implements OnChartGestureListe
 
         Typeface tf = Typeface.createFromAsset(getContext().getAssets(), "OpenSans-Regular.ttf");
 
-        LimitLine ll1 = new LimitLine(150f, "Upper Limit");
+        LimitLine ll1 = new LimitLine(600f, "Upper Limit");
         ll1.setLineWidth(4f);
         ll1.enableDashedLine(10f, 10f, 0f);
         ll1.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
         ll1.setTextSize(10f);
         ll1.setTypeface(tf);
 
-        LimitLine ll2 = new LimitLine(-30f, "Lower Limit");
+        LimitLine ll2 = new LimitLine(-0f, "Lower Limit");
         ll2.setLineWidth(4f);
         ll2.enableDashedLine(10f, 10f, 0f);
         ll2.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_BOTTOM);
@@ -178,7 +196,7 @@ public class DisplayLineFragment extends Fragment implements OnChartGestureListe
         leftAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
         leftAxis.addLimitLine(ll1);
         leftAxis.addLimitLine(ll2);
-        leftAxis.setAxisMaximum(200f);
+        leftAxis.setAxisMaximum(650f);
         leftAxis.setAxisMinimum(-50f);
         //leftAxis.setYOffset(20f);
         leftAxis.enableGridDashedLine(10f, 10f, 0f);
@@ -193,7 +211,8 @@ public class DisplayLineFragment extends Fragment implements OnChartGestureListe
         //mChart.getViewPortHandler().setMaximumScaleX(2f);
 
         // add data
-        setData(7, 100);
+
+        getWeekDateForActivity("study");
 
 //        mChart.setVisibleXRange(20);
 //        mChart.setVisibleYRange(20f, AxisDependency.LEFT);
@@ -215,27 +234,19 @@ public class DisplayLineFragment extends Fragment implements OnChartGestureListe
     }
 
 
-    private void setData(int count, float range) {
-
-        ArrayList<Entry> values = new ArrayList<Entry>();
-
-        for (int i = 0; i < count; i++) {
-
-            float val = (float) (Math.random() * range) + 3;
-            values.add(new Entry(i, val, getResources().getDrawable(R.drawable.star)));
-        }
+    private void setData() {
 
         LineDataSet set1;
 
         if (mChart.getData() != null &&
                 mChart.getData().getDataSetCount() > 0) {
             set1 = (LineDataSet)mChart.getData().getDataSetByIndex(0);
-            set1.setValues(values);
+            set1.setValues(activity_time_array);
             mChart.getData().notifyDataChanged();
             mChart.notifyDataSetChanged();
         } else {
             // create a dataset and give it a type
-            set1 = new LineDataSet(values, "DataSet 1");
+            set1 = new LineDataSet(activity_time_array, "DataSet 1");
 
             set1.setDrawIcons(false);
 
@@ -272,6 +283,53 @@ public class DisplayLineFragment extends Fragment implements OnChartGestureListe
             mChart.setData(data);
         }
     }
+
+
+    private void getWeekDateForActivity(String activity){
+
+        activity_time_array = new ArrayList<>();
+
+        for (int i = 0; i < 7; i++){
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.DAY_OF_MONTH,-6+i);
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            String date = df.format(calendar.getTime());
+            String[] dates = date.split("-");
+
+            int dayDuration = 0;
+            Cursor cursor = getRecords(dates[0], dates[1], dates[2], activity);
+            if (cursor != null){
+                if(cursor.moveToFirst()){
+                    do{
+                        int curtDuration = cursor.getInt(cursor.getColumnIndex(RecordContract.RecordEntry.COLUMN_DURATION));
+                        dayDuration += curtDuration;
+                    }while(cursor.moveToNext());
+                }
+            }
+            activity_time_array.add(new Entry(i, dayDuration, getResources().getDrawable(R.drawable.star)));
+        }
+        setData();
+        mChart.notifyDataSetChanged();
+        mChart.invalidate();
+    }
+
+    protected Cursor getRecords(String year, String month, String day, String activity){
+        String whereCluse = RecordContract.RecordEntry.COLUMN_YEAR + " = '" + year + "' AND " +
+                RecordContract.RecordEntry.COLUMN_MONTH + " = '" + month + "' AND " +
+                RecordContract.RecordEntry.COLUMN_DAY + " = '" + day + "' AND " +
+                RecordContract.RecordEntry.COLUMN_TYPE + " = '" + activity + "' ";
+        return mDb.query(
+                RecordContract.RecordEntry.TABLE_NAME,
+                null,
+                whereCluse,
+                null,
+                null,
+                null,
+                null
+        );
+    }
+
+
 
     private boolean removeRecord(long id){
         return mDb.delete(RecordContract.RecordEntry.TABLE_NAME,
@@ -334,5 +392,6 @@ public class DisplayLineFragment extends Fragment implements OnChartGestureListe
     public void onNothingSelected() {
         Log.i("Nothing selected", "Nothing selected.");
     }
+
 
 }

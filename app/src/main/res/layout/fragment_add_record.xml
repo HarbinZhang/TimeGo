@@ -150,23 +150,36 @@
                     android:textAlignment="center"
                     android:paddingTop="@dimen/paddingForRadio"
                     android:paddingBottom="@dimen/paddingForRadio"
-                    android:text="Trash" />
+                    android:text="Waste" />
+
+
+                <RadioButton
+                    android:id="@+id/more_btn"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/rbtn_selector"
+                    android:textColor="@drawable/rbtn_textcolor_selector"
+                    android:button="@null"
+                    android:textAlignment="center"
+                    android:paddingTop="@dimen/paddingForRadio"
+                    android:paddingBottom="@dimen/paddingForRadio"
+                    android:text="More" />
+
 
             </RadioGroup>
 
 
-            <android.support.v7.widget.AppCompatSpinner
-                android:id="@+id/sp_add_record_more"
-                android:background="@drawable/rbtn_selector"
-                style="@style/mySpinnerItemStyle"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:spinnerMode="dialog"
-                android:gravity="right"
-                android:layout_height="match_parent">
-
-
-            </android.support.v7.widget.AppCompatSpinner>
+            <!--<android.support.v7.widget.AppCompatSpinner-->
+                <!--android:id="@+id/sp_add_record_more"-->
+                <!--android:background="@drawable/rbtn_selector"-->
+                <!--style="@style/mySpinnerItemStyle"-->
+                <!--android:layout_width="0dp"-->
+                <!--android:layout_weight="1"-->
+                <!--android:spinnerMode="dialog"-->
+                <!--android:gravity="right"-->
+                <!--android:layout_height="match_parent">-->
+            <!--</android.support.v7.widget.AppCompatSpinner>-->
 
 
         </LinearLayout>
@@ -345,7 +358,7 @@
                 android:layout_height="wrap_content"
                 android:minHeight="0dp"
                 android:minWidth="0dp"
-                android:text="OK" />
+                android:text="ADD" />
 
         </LinearLayout>
 

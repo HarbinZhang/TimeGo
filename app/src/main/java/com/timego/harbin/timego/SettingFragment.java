@@ -2,6 +2,7 @@ package com.timego.harbin.timego;
 
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -34,7 +35,7 @@ public class SettingFragment extends Fragment {
 
     private SQLiteDatabase mDb;
 
-    private Button btn_timePicker;
+    private Button btn_timePicker, btn_editMore;
     private static TextView tv_wakeupTime;
 
     public SettingFragment() {
@@ -57,16 +58,25 @@ public class SettingFragment extends Fragment {
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_setting, container, false);
 
+
+        // btn edit more
+        btn_editMore = (Button) view.findViewById(R.id.btn_setting_edit_more);
+        btn_editMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), EditMoreActivity.class);
+                startActivity(intent);
+            }
+        });
+
+
+        // btn sync
         Button btn_sync = (Button) view.findViewById(R.id.btn_setting_sync);
-
         tv_wakeupTime = (TextView) view.findViewById(R.id.tv_setting_wakeup_time);
-
         tv_wakeupTime.setText(timeToString(prefs.getInt("wakeupHour",0))+":"+
                 timeToString(prefs.getInt("wakeupMinute",0)));
-
         RecordDbHelper dbHelper = new RecordDbHelper(getContext());
         mDb = dbHelper.getWritableDatabase();
-
         btn_sync.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -78,7 +88,7 @@ public class SettingFragment extends Fragment {
             }
         });
 
-
+        // btn timepicker
         btn_timePicker = (Button) view.findViewById(R.id.btn_setting_wakeup);
         btn_timePicker.setOnClickListener(new View.OnClickListener() {
             @Override

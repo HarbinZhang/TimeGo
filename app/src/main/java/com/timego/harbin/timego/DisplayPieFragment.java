@@ -23,9 +23,6 @@ import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.github.mikephil.charting.utils.MPPointF;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
 import com.timego.harbin.timego.database.RecordContract;
 
 import java.text.SimpleDateFormat;
@@ -35,11 +32,6 @@ import java.util.Calendar;
 import static com.timego.harbin.timego.MainActivity.timeSum;
 
 public class DisplayPieFragment extends Fragment {
-
-    private FirebaseAuth mFirebaseAuth;
-    private FirebaseUser mFirebaseUser;
-    private DatabaseReference mDatabase;
-    private String mUserId;
 
     private ListView today_lv;
 
@@ -52,7 +44,7 @@ public class DisplayPieFragment extends Fragment {
     private Typeface mTfRegular;
 
     protected String[] mParties = new String[] {
-            "study", "entertain", "sleep", "exercise", "trash"
+            "study", "entertain", "sleep", "exercise", "waste" , "more"
     };
 
 

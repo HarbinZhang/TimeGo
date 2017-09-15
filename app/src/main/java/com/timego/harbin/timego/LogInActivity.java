@@ -114,6 +114,7 @@ public class LogInActivity extends FragmentActivity implements
         } else {
             // Signed out, show unauthenticated UI.
 //            updateUI(false);
+            Toast.makeText(LogInActivity.this, "Log in failed.", Toast.LENGTH_LONG).show();
         }
     }
 

@@ -14,8 +14,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
@@ -26,24 +24,20 @@ import com.timego.harbin.timego.database.RecordContract;
 import com.timego.harbin.timego.database.RecordDbHelper;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Stack;
 import java.util.concurrent.TimeUnit;
 
 import static com.timego.harbin.timego.MainActivity.editor;
 import static com.timego.harbin.timego.MainActivity.mDb;
-import static com.timego.harbin.timego.MainActivity.moreActivities2Color;
 import static com.timego.harbin.timego.MainActivity.prefs;
 
 
 public class AddRecordFragment extends Fragment {
 
     private TextView info_tv,duration_tv, tv_last_time, tv_duration_remain;
-    private Button hour_btn, min_btn, ok_btn, onemin_btn;
+    private Button hour_btn, min_btn, add_btn, onemin_btn;
     private Button btn_reset, btn_undo;
     private RadioGroup radGroup, eff_radGroup;
     private int duration;
@@ -118,7 +112,7 @@ public class AddRecordFragment extends Fragment {
         radGroup = (RadioGroup) view.findViewById(R.id.main_radioGroup);
         hour_btn = (Button) view.findViewById(R.id.main_hour_btn);
         min_btn = (Button) view.findViewById(R.id.main_min_btn);
-        ok_btn = (Button) view.findViewById(R.id.main_ok_btn);
+        add_btn = (Button) view.findViewById(R.id.main_ok_btn);
         onemin_btn = (Button) view.findViewById(R.id.main_onemin_btn);
         duration_tv = (TextView) view.findViewById(R.id.main_duration_tv);
         tv_last_time = (TextView) view.findViewById(R.id.tv_setting_last_time);
@@ -127,29 +121,30 @@ public class AddRecordFragment extends Fragment {
         btn_undo = (Button) view.findViewById(R.id.btn_record_undo);
 
         // init spinner for "more" option
-        sp_more = (Spinner) view.findViewById(R.id.sp_add_record_more);
-        Iterator keysToCopyIterator = moreActivities2Color.keys();
-        List<String> keysList = new ArrayList<String>();
-        while(keysToCopyIterator.hasNext()) {
-            String key = (String) keysToCopyIterator.next();
-            keysList.add(key);
-        }
-        final String[] moreActivities = keysList.toArray(new String[keysList.size()]);
+//        sp_more = (Spinner) view.findViewById(R.id.sp_add_record_more);
+//        Iterator keysToCopyIterator = moreActivities2Color.keys();
+//        List<String> keysList = new ArrayList<String>();
+//        while(keysToCopyIterator.hasNext()) {
+//            String key = (String) keysToCopyIterator.next();
+//            keysList.add(key);
+//        }
+//        final String[] moreActivities = keysList.toArray(new String[keysList.size()]);
 
-        ArrayAdapter<String> moreAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, moreActivities);
-        sp_more.setAdapter(moreAdapter);
-        sp_more.setVisibility(View.VISIBLE);
-        sp_more.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                curt_activity = moreActivities[position];
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
+//        ArrayAdapter<String> moreAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, moreActivities);
+//        sp_more.setAdapter(moreAdapter);
+//        sp_more.setVisibility(View.VISIBLE);
+//        sp_more.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//                curt_activity = moreActivities[position];
+//                radGroup.clearCheck();
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {
+//
+//            }
+//        });
 
 
         duration = 0;
@@ -181,7 +176,10 @@ public class AddRecordFragment extends Fragment {
                     case R.id.trash_btn:
 //                        if(!checkRemainDuration()){return;}
 //                        addNewActivity();
-                        curt_activity = "trash";
+                        curt_activity = "waste";
+                        break;
+                    case R.id.more_btn:
+                        curt_activity = "more";
                         break;
                 }
             }
@@ -287,7 +285,8 @@ public class AddRecordFragment extends Fragment {
             }
         });
 
-        ok_btn.setOnClickListener(new View.OnClickListener() {
+
+        add_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
