@@ -145,7 +145,7 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.ViewHolder
             holder.cv_container.setCardBackgroundColor(ContextCompat.getColor(this.context, R.color.sleep));
         }else if(type.equals("exercise")){
             holder.cv_container.setCardBackgroundColor(ContextCompat.getColor(this.context, R.color.exercise));
-        }else if(type.equals("trash")){
+        }else if(type.equals("waste")){
             holder.cv_container.setCardBackgroundColor(ContextCompat.getColor(this.context, R.color.trash));
         }else if(type.equals("more")){
             holder.cv_container.setCardBackgroundColor(ContextCompat.getColor(this.context, R.color.more));
