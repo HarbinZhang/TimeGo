@@ -1,5 +1,6 @@
 package com.timego.harbin.timego;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -44,10 +45,13 @@ public class LogInActivity extends FragmentActivity implements
     private static final int RC_SIGN_IN = 9001;
     private SignInButton signInButton;
 
+    private Context mContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mContext = this;
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -73,7 +77,7 @@ public class LogInActivity extends FragmentActivity implements
         btn_init();
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken("firebase_web_client_id_for_google")
+                .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
 
@@ -136,6 +140,7 @@ public class LogInActivity extends FragmentActivity implements
                             Log.d(TAG, "signInWithCredential:success");
 //                            FirebaseUser user = mAuth.getCurrentUser();
                             mFirebaseUser = mFirebaseAuth.getCurrentUser();
+                            Toast.makeText(LogInActivity.this, "Log in successful.", Toast.LENGTH_LONG).show();
                             finish();
 //                            updateUI(user);
                         } else {
@@ -189,12 +194,14 @@ public class LogInActivity extends FragmentActivity implements
                 password = password.trim();
 
                 if (email.isEmpty() || password.isEmpty()) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(LogInActivity.this);
-                    builder.setMessage(R.string.login_error_message)
-                            .setTitle(R.string.login_error_title)
-                            .setPositiveButton(android.R.string.ok, null);
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
+//                    AlertDialog.Builder builder = new AlertDialog.Builder(LogInActivity.this);
+//                    builder.setMessage(R.string.login_error_message)
+//                            .setTitle(R.string.login_error_title)
+//                            .setPositiveButton(android.R.string.ok, null);
+//                    AlertDialog dialog = builder.create();
+//                    dialog.show();
+
+                    Toast.makeText(mContext, R.string.signup_error_message, Toast.LENGTH_LONG).show();
                 } else {
                     mFirebaseAuth.signInWithEmailAndPassword(email, password)
                             .addOnCompleteListener(LogInActivity.this, new OnCompleteListener<AuthResult>() {

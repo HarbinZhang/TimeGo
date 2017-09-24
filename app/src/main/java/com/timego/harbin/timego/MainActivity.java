@@ -229,10 +229,21 @@ public class MainActivity extends AppCompatActivity {
 
     private void firebase_curtIndex(){
         Query curtIndexQuery = mDatabase.child("users").child(mFirebaseUser.getUid()).child("curtIndex");
-        curtIndexQuery.addValueEventListener(new ValueEventListener() {
+        curtIndexQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                curtIndex = dataSnapshot.getValue(Integer.class);
+                if(dataSnapshot.getValue() == null){
+                    Calendar cal = Calendar.getInstance();
+                    SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                    String time = f.format(cal.getTime());
+
+                    mDatabase.child("users").child(mUserId).child("newestTime").setValue(time);
+                    mDatabase.child("users").child(mUserId).child("curtIndex").setValue(0);
+
+                    curtIndex = 0;
+                }else {
+                    curtIndex = dataSnapshot.getValue(Integer.class);
+                }
             }
 
             @Override
@@ -274,6 +285,16 @@ public class MainActivity extends AppCompatActivity {
                 menu.findItem(R.id.menu_week_pie).setVisible(false);
                 menu.findItem(R.id.menu_month_pie).setVisible(false);
                 menu.findItem(R.id.menu_week_line).setVisible(false);
+//                menu.findItem(R.id.menu_signin).setVisible(false);
+//                menu.findItem(R.id.menu_signup).setVisible(false);
+//                menu.findItem(R.id.menu_logout).setVisible(false);
+                if(mFirebaseUser != null){
+                    menu.findItem(R.id.menu_logout).setVisible(false);
+                }else{
+                    menu.findItem(R.id.menu_signin).setVisible(false);
+                    menu.findItem(R.id.menu_signup).setVisible(false);
+                }
+
                 break;
             case "dashboard":
                 menu.findItem(R.id.menu_about).setVisible(false);
@@ -281,6 +302,16 @@ public class MainActivity extends AppCompatActivity {
                 menu.findItem(R.id.menu_today_pei).setVisible(true);
                 menu.findItem(R.id.menu_week_pie).setVisible(true);
                 menu.findItem(R.id.menu_month_pie).setVisible(true);
+//                menu.findItem(R.id.menu_signin).setVisible(false);
+//                menu.findItem(R.id.menu_signup).setVisible(false);
+//                menu.findItem(R.id.menu_logout).setVisible(false);
+                if(mFirebaseUser != null){
+                    menu.findItem(R.id.menu_logout).setVisible(false);
+                }else{
+                    menu.findItem(R.id.menu_signin).setVisible(false);
+                    menu.findItem(R.id.menu_signup).setVisible(false);
+                }
+
                 break;
             case "setting":
                 menu.findItem(R.id.menu_about).setVisible(true);
@@ -289,6 +320,16 @@ public class MainActivity extends AppCompatActivity {
                 menu.findItem(R.id.menu_week_pie).setVisible(false);
                 menu.findItem(R.id.menu_month_pie).setVisible(false);
                 menu.findItem(R.id.menu_week_line).setVisible(false);
+//                menu.findItem(R.id.menu_signin).setVisible();
+//                menu.findItem(R.id.menu_signup).setVisible(false);
+//                menu.findItem(R.id.menu_logout).setVisible(false);
+                if(mFirebaseUser != null){
+                    menu.findItem(R.id.menu_logout).setVisible(true);
+                }else{
+                    menu.findItem(R.id.menu_signin).setVisible(true);
+                    menu.findItem(R.id.menu_signup).setVisible(true);
+                }
+
                 break;
         }
         return super.onPrepareOptionsMenu(menu);

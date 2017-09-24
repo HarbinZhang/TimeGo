@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "552988190087-hu31jbsl9d8ng047l5dn83s3phcqblm2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.timego.harbin.timego",
+            "certificate_hash": "a95965a5cbf4cfc70f0629b13ce3f600b20ff572"
+          }
+        },
+        {
           "client_id": "552988190087-qalb3v52joj5037f1o14j5efjq3v46lv.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

@@ -82,7 +82,7 @@ public class SignUpActivity extends FragmentActivity implements
         btn_init();
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken("firebase_web_client_id_for_google")
+                .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
 
@@ -193,12 +193,13 @@ public class SignUpActivity extends FragmentActivity implements
                 email = email.trim();
 
                 if (password.isEmpty() || email.isEmpty()) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(SignUpActivity.this);
-                    builder.setMessage(R.string.signup_error_message)
-                            .setTitle(R.string.signup_error_title)
-                            .setPositiveButton(android.R.string.ok, null);
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
+//                    AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+//                    builder.setMessage(R.string.signup_error_message)
+//                            .setTitle(R.string.signup_error_title)
+//                            .setPositiveButton(android.R.string.ok, null);
+//                    AlertDialog dialog = builder.create();
+//                    dialog.show();
+                    Toast.makeText(mContext, R.string.signup_error_message, Toast.LENGTH_LONG).show();
                 } else {
                     mFirebaseAuth.createUserWithEmailAndPassword(email, password)
                             .addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<AuthResult>() {
