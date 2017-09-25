@@ -90,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
             }
 //            final FragmentTransaction transaction = fragmentManager.beginTransaction();
             transaction = getSupportFragmentManager().beginTransaction();
+            transaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.fade_out);
             transaction.replace(R.id.main_container, fragment).commit();
 //            transaction.add(R.id.main_container, fragment);
 //            transaction.commit();

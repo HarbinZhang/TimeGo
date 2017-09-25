@@ -19,8 +19,10 @@ import com.google.firebase.database.ValueEventListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
 import static com.timego.harbin.timego.MainActivity.mDatabase;
+import static com.timego.harbin.timego.MainActivity.mFirebaseUser;
 import static com.timego.harbin.timego.MainActivity.mUserId;
 
 public class FeedbackActivity extends AppCompatActivity {
@@ -65,38 +67,50 @@ public class FeedbackActivity extends AppCompatActivity {
         mChatView.setMessageMarginBottom(5);
 
 
-        Query feedbackQuery = mDatabase.child("users").child(mUserId).child("feedback");
-        feedbackQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                ArrayList<Message> messages = new ArrayList<Message>();
-                for (DataSnapshot it: dataSnapshot.getChildren()){
-                    Message message;
-                    if (it.getKey().split(" ")[2].equals("1")){
-                        message = new Message.Builder()
-                                .setUser(me)
-                                .setRightMessage(true)
-                                .setMessageText(it.getValue(String.class))
-                                .hideIcon(true)
-                                .build();
-                        mChatView.send(message);
+        if(mFirebaseUser!=null){
+            Query feedbackQuery = mDatabase.child("users").child(mUserId).child("feedback");
+            feedbackQuery.orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    ArrayList<Message> messages = new ArrayList<Message>();
+                    for (DataSnapshot it: dataSnapshot.getChildren()){
+                        Message message;
+                        String date_s = it.getKey().substring(0,it.getKey().length()-2);
+                        String pattern = "yyyy-MM-dd HH:mm:SS";
+                        Calendar calendar = Calendar.getInstance();
+                        try {
+                            Date date = new SimpleDateFormat(pattern).parse(date_s);
+                            calendar.setTime(date);
+                        }catch (Exception e){
 
-                    }else{
-                        message = new Message.Builder()
-                                .setUser(you)
-                                .setRightMessage(false)
-                                .setMessageText(it.getValue(String.class))
-                                .build();
-                        mChatView.receive(message);
+                        }
+                        if (it.getKey().split(" ")[2].equals("1")){
+                            message = new Message.Builder()
+                                    .setUser(me)
+                                    .setRightMessage(true)
+                                    .setMessageText(it.getValue(String.class))
+                                    .hideIcon(true)
+                                    .setCreatedAt(calendar)
+                                    .build();
+                            mChatView.send(message);
+                        }else{
+                            message = new Message.Builder()
+                                    .setUser(you)
+                                    .setRightMessage(false)
+                                    .setMessageText(it.getValue(String.class))
+                                    .setCreatedAt(calendar)
+                                    .build();
+                            mChatView.receive(message);
+                        }
                     }
                 }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
-            }
-        });
+                }
+            });
+        }
 
 
         mChatView.setOnClickSendButtonListener(new View.OnClickListener() {
@@ -106,7 +120,6 @@ public class FeedbackActivity extends AppCompatActivity {
                 SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:SS");
                 String time = f.format(cal.getTime());
 
-                mDatabase.child("users").child(mUserId).child("feedback").child(time+" 1").setValue(mChatView.getInputText());
 
                 //new message
                 Message message = new Message.Builder()
@@ -117,6 +130,19 @@ public class FeedbackActivity extends AppCompatActivity {
                         .build();
                 //Set to chat view
                 mChatView.send(message);
+
+
+                if(mFirebaseUser == null){
+                    final Message receivedMessage = new Message.Builder()
+                        .setUser(you)
+                        .setRightMessage(false)
+                        .setMessageText("Please sign in or sign up to talk with me : )")
+                        .build();
+
+                    mChatView.receive(receivedMessage);
+                }else{
+                    mDatabase.child("users").child(mUserId).child("feedback").child(time+" 1").setValue(mChatView.getInputText());
+                }
 
                 mChatView.setInputText("");
             }
