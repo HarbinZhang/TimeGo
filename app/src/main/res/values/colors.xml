@@ -18,4 +18,6 @@
     <color name="red">#FF0033</color>
     <color name="light_grey">#CCCCCC</color>
 
+    <color name="cyan500">#00BCD4</color>
+
 </resources>

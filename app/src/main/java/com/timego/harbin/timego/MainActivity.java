@@ -179,7 +179,8 @@ public class MainActivity extends AppCompatActivity {
 
         switch (item.getItemId()){
             case R.id.menu_feedback:
-                Toast.makeText(mContext, "Still in progress", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(mContext, "Still in progress", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(mContext, FeedbackActivity.class));
                 break;
             case R.id.menu_signin:
                 startActivity(new Intent(mContext, LogInActivity.class));
@@ -285,9 +286,6 @@ public class MainActivity extends AppCompatActivity {
                 menu.findItem(R.id.menu_week_pie).setVisible(false);
                 menu.findItem(R.id.menu_month_pie).setVisible(false);
                 menu.findItem(R.id.menu_week_line).setVisible(false);
-//                menu.findItem(R.id.menu_signin).setVisible(false);
-//                menu.findItem(R.id.menu_signup).setVisible(false);
-//                menu.findItem(R.id.menu_logout).setVisible(false);
                 if(mFirebaseUser != null){
                     menu.findItem(R.id.menu_logout).setVisible(false);
                 }else{
@@ -302,9 +300,6 @@ public class MainActivity extends AppCompatActivity {
                 menu.findItem(R.id.menu_today_pei).setVisible(true);
                 menu.findItem(R.id.menu_week_pie).setVisible(true);
                 menu.findItem(R.id.menu_month_pie).setVisible(true);
-//                menu.findItem(R.id.menu_signin).setVisible(false);
-//                menu.findItem(R.id.menu_signup).setVisible(false);
-//                menu.findItem(R.id.menu_logout).setVisible(false);
                 if(mFirebaseUser != null){
                     menu.findItem(R.id.menu_logout).setVisible(false);
                 }else{
@@ -320,9 +315,6 @@ public class MainActivity extends AppCompatActivity {
                 menu.findItem(R.id.menu_week_pie).setVisible(false);
                 menu.findItem(R.id.menu_month_pie).setVisible(false);
                 menu.findItem(R.id.menu_week_line).setVisible(false);
-//                menu.findItem(R.id.menu_signin).setVisible();
-//                menu.findItem(R.id.menu_signup).setVisible(false);
-//                menu.findItem(R.id.menu_logout).setVisible(false);
                 if(mFirebaseUser != null){
                     menu.findItem(R.id.menu_logout).setVisible(true);
                 }else{

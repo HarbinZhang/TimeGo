@@ -148,7 +148,7 @@ public class SettingFragment extends Fragment {
                 id = cursor.getLong(cursor.getColumnIndex(RecordContract.RecordEntry._ID));
 
                 String uid = ((MainActivity)getActivity()).mUserId;
-                ((MainActivity)getActivity()).mDatabase.child("users").child(uid).child(String.valueOf(id)).setValue(record);
+                ((MainActivity)getActivity()).mDatabase.child("users").child(uid).child("records").child(String.valueOf(id)).setValue(record);
             }while(cursor.moveToNext());
         }
         ((MainActivity)getActivity()).curtIndex = safeLongToInt(id);
