@@ -36,6 +36,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -64,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
 //    protected static Map<String, String> moreActivities2Color = new HashMap<>();
 
     protected static JSONObject moreActivities2Color;
+
+    protected static long longTimeId;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -117,7 +120,6 @@ public class MainActivity extends AppCompatActivity {
         String moreActivities2Color_str = prefs.getString("moreActivities", "{\"more\":\"#FFFFFF\"}");
         try {
             moreActivities2Color = new JSONObject(moreActivities2Color_str);
-
         }catch (Exception e){
 
         }
@@ -157,7 +159,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
 
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             invalidateOptionsMenu();
         }
@@ -169,7 +170,6 @@ public class MainActivity extends AppCompatActivity {
                 firebase_curtIndex();
             }
         }
-
 
         super.onStart();
 
@@ -192,7 +192,6 @@ public class MainActivity extends AppCompatActivity {
             case R.id.menu_logout:
                 FirebaseAuth.getInstance().signOut();
                 mFirebaseUser = null;
-                mFirebaseAuth = null;
                 Toast.makeText(mContext, "Logout successful.", Toast.LENGTH_LONG).show();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                     invalidateOptionsMenu();
@@ -222,6 +221,15 @@ public class MainActivity extends AppCompatActivity {
             case R.id.menu_week_line:
                 fragment = new DisplayLineFragment();
                 transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.main_container, fragment).commit();
+                break;
+            case R.id.menu_help:
+                UUID uuid = UUID.randomUUID();
+
+                longTimeId = uuid.getMostSignificantBits();
+                fragment = new AddRecordFragment();
+                transaction = getSupportFragmentManager().beginTransaction();
+                transaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.fade_out);
                 transaction.replace(R.id.main_container, fragment).commit();
                 break;
         }
@@ -287,6 +295,7 @@ public class MainActivity extends AppCompatActivity {
                 menu.findItem(R.id.menu_week_pie).setVisible(false);
                 menu.findItem(R.id.menu_month_pie).setVisible(false);
                 menu.findItem(R.id.menu_week_line).setVisible(false);
+                menu.findItem(R.id.menu_help).setVisible(true);
                 if(mFirebaseUser != null){
                     menu.findItem(R.id.menu_logout).setVisible(false);
                 }else{
@@ -301,6 +310,7 @@ public class MainActivity extends AppCompatActivity {
                 menu.findItem(R.id.menu_today_pei).setVisible(true);
                 menu.findItem(R.id.menu_week_pie).setVisible(true);
                 menu.findItem(R.id.menu_month_pie).setVisible(true);
+                menu.findItem(R.id.menu_help).setVisible(false);
                 if(mFirebaseUser != null){
                     menu.findItem(R.id.menu_logout).setVisible(false);
                 }else{
@@ -316,6 +326,7 @@ public class MainActivity extends AppCompatActivity {
                 menu.findItem(R.id.menu_week_pie).setVisible(false);
                 menu.findItem(R.id.menu_month_pie).setVisible(false);
                 menu.findItem(R.id.menu_week_line).setVisible(false);
+                menu.findItem(R.id.menu_help).setVisible(false);
                 if(mFirebaseUser != null){
                     menu.findItem(R.id.menu_logout).setVisible(true);
                 }else{
@@ -423,5 +434,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+
 
 }

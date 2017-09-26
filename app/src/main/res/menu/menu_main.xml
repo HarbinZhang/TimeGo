@@ -50,4 +50,9 @@
         android:title="Week Line"
         app:showAsAction="collapseActionView"/>
 
+    <item
+        android:id="@+id/menu_help"
+        android:title="Help"
+        app:showAsAction="collapseActionView"/>
+
 </menu>

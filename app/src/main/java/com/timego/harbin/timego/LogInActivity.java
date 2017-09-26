@@ -43,6 +43,7 @@ public class LogInActivity extends FragmentActivity implements
     private GoogleApiClient mGoogleApiClient;
     private static final String TAG = "SignInActivity";
     private static final int RC_SIGN_IN = 9001;
+    private static final int SIGN_UP = 9002;
     private SignInButton signInButton;
 
     private Context mContext;
@@ -101,6 +102,10 @@ public class LogInActivity extends FragmentActivity implements
         if (requestCode == RC_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             handleSignInResult(result);
+        }else if(requestCode == SIGN_UP){
+            if(resultCode == RESULT_OK){
+                finish();
+            }
         }
     }
 
@@ -172,7 +177,7 @@ public class LogInActivity extends FragmentActivity implements
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(LogInActivity.this, SignUpActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, SIGN_UP);
             }
         });
 

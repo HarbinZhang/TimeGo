@@ -2,6 +2,8 @@ package com.timego.harbin.timego;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
@@ -9,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.TextPaint;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +23,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.timego.harbin.timego.database.RecordContract;
 import com.timego.harbin.timego.database.RecordDbHelper;
 
@@ -30,11 +35,12 @@ import java.util.Stack;
 import java.util.concurrent.TimeUnit;
 
 import static com.timego.harbin.timego.MainActivity.editor;
+import static com.timego.harbin.timego.MainActivity.longTimeId;
 import static com.timego.harbin.timego.MainActivity.mDb;
 import static com.timego.harbin.timego.MainActivity.prefs;
 
 
-public class AddRecordFragment extends Fragment {
+public class AddRecordFragment extends Fragment{
 
     private TextView info_tv,duration_tv, tv_last_time, tv_duration_remain;
     private Button hour_btn, min_btn, add_btn, onemin_btn;
@@ -58,6 +64,10 @@ public class AddRecordFragment extends Fragment {
 
 
     private Spinner sp_more;
+
+
+    private ShowcaseView showcaseView;
+    private int counter = 0;
 
 
     public AddRecordFragment() {
@@ -99,12 +109,69 @@ public class AddRecordFragment extends Fragment {
 
         initLastTime();
 
-
-
+        initShowcase(view);
 
         return view;
     }
 
+
+    private void initShowcase(View view){
+        TextPaint paint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+        paint.setColor(Color.WHITE);
+        paint.setTextSize(getResources().getDimension(R.dimen.font_normal));
+
+//        paint.setTypeface(Typeface.createFromAsset(getAssets()))
+        showcaseView = new ShowcaseView.Builder(getActivity())
+                .withMaterialShowcase()
+                .setStyle(R.style.CustomShowcaseTheme2)
+                .setTarget(new ViewTarget(view.findViewById(R.id.tv_setting_last_time)))
+                .setContentTitle("Current recorded time")
+                .setContentTextPaint(paint)
+                .singleShot(longTimeId)
+                .setContentText("It shows the newest recorded activity end time. \n " +
+                        "Your new record will start at this time.")
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        switch (counter){
+                            case 0:
+                                showcaseView.setShowcase(new ViewTarget(tv_duration_remain), true);
+                                showcaseView.setContentTitle("Remain duration");
+                                showcaseView.setContentText("It shows how much minutes between recorded time and now.");
+                                break;
+                            case 1:
+                                showcaseView.setShowcase(new ViewTarget(duration_tv), true);
+                                showcaseView.setContentTitle("Current duration");
+                                showcaseView.setContentText("It shows how much minutes your recording activity taken.");
+                                break;
+                            case 2:
+                                showcaseView.setShowcase(new ViewTarget(radGroup), true);
+                                showcaseView.setContentTitle("Current Activity");
+                                showcaseView.setContentText("Choose your current activity type\n" +
+                                        "Like self-improment, healthy activity or funny activity etc.");
+                                break;
+                            case 3:
+                                showcaseView.setShowcase(new ViewTarget(eff_radGroup), true);
+                                showcaseView.setContentTitle("Current Activity Efficiency");
+                                showcaseView.setContentText("Choose your feeling about this Activity\n" +
+                                        "If you think you are 100% concentrated on it, choose Perfect : ) ");
+                                break;
+                            case 4:
+                                showcaseView.setShowcase(new ViewTarget(mRecyclerView),true);
+                                showcaseView.setStyle(R.style.CustomShowcaseTheme);
+                                showcaseView.setContentTitle("Activities show here");
+                                showcaseView.setContentText("Added records would be shown here \n" +
+                                        "If you want to remove them, just swipe it out.");
+                                break;
+                            case 5:
+                                showcaseView.hide();
+                                break;
+                        }
+                        counter++;
+                    }
+                })
+                .build();
+    }
 
     private void initForXml(View view){
         // xml

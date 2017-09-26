@@ -1,5 +1,6 @@
 package com.timego.harbin.timego;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -139,6 +140,12 @@ public class SignUpActivity extends FragmentActivity implements
                             Log.d(TAG, "signInWithCredential:success");
 //                            FirebaseUser user = mAuth.getCurrentUser();
                             mFirebaseUser = mFirebaseAuth.getCurrentUser();
+                            Intent intent = new Intent();
+                            if (getParent() == null) {
+                                setResult(Activity.RESULT_OK, intent);
+                            } else {
+                                getParent().setResult(Activity.RESULT_OK, intent);
+                            }
                             finish();
 //                            updateUI(user);
                         } else {
