@@ -5,6 +5,7 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -87,6 +88,15 @@ public class SettingFragment extends Fragment {
                 }
             }
         });
+
+        Button btn_privacy = (Button) view.findViewById(R.id.btn_setting_privacy);
+        btn_privacy.setOnClickListener(new View.OnClickListener() {
+                                           @Override
+                                           public void onClick(View view) {
+                                               startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://sites.google.com/view/timego/home")));
+                                           }
+                                       }
+        );
 
         // btn timepicker
         btn_timePicker = (Button) view.findViewById(R.id.btn_setting_wakeup);
